@@ -1,3 +1,3 @@
-# Surname Name
-# Фамилия Имя
+# Chuvashov Egor
+# Чувашов Егор
 ![Screenshot](screenshot.png)
