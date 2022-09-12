@@ -1,4 +1,4 @@
-// uncomment the 83nd line to output the graph
+// uncomment the 84nd line to output the graph
 
 #include <iostream>
 #include <vector>
@@ -11,7 +11,8 @@ class Graph {
   void add_vertex() { kVerticesCount++; }
 
   void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    edges.push_back(Edge(kEdgesCount++, from_vertex_id, to_vertex_id));
+    edges.emplace(edges.end(),
+                  (Edge(kEdgesCount++, from_vertex_id, to_vertex_id)));
   }
 
   // Run through all edges and show connected vertices by each one of them
@@ -81,7 +82,7 @@ int main() {
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
 
-  //graph.show_graph();
+  // graph.show_graph();
 
   return 0;
 }
