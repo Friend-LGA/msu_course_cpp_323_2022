@@ -7,6 +7,22 @@ class Graph {
   using VertexId = int;
   using EdgeId = int;
 
+ public:
+  void add_vertex() { kVerticesCount++; }
+
+  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
+    edges.push_back(Edge(kEdgesCount++, from_vertex_id, to_vertex_id));
+  }
+
+  // Run through all edges and show connected vertices by each one of them
+  void show_graph() {
+    for (const auto& edge : edges) {
+      std::cout << edge.id() << " : " << edge.from_vertex_id() << " --> "
+                << edge.to_vertex_id() << std::endl;
+    }
+  }
+
+ private:
   struct Vertex {
    public:
     explicit Vertex(VertexId id) : id_(id) {}
@@ -36,21 +52,6 @@ class Graph {
   VertexId kVerticesCount = 0;
   EdgeId kEdgesCount = 0;
   std::vector<Edge> edges;
-
- public:
-  void add_vertex() { kVerticesCount++; }
-
-  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    edges.push_back(Edge(kEdgesCount++, from_vertex_id, to_vertex_id));
-  }
-
-  // Run through all edges and show connected vertices by each one of them
-  void show_graph() {
-    for (const auto& edge : edges) {
-      std::cout << edge.id() << " : " << edge.from_vertex_id() << " --> "
-                << edge.to_vertex_id() << std::endl;
-    }
-  }
 };
 
 int main() {
@@ -80,7 +81,7 @@ int main() {
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
 
-  // graph.show_graph();
+  //graph.show_graph();
 
   return 0;
 }
