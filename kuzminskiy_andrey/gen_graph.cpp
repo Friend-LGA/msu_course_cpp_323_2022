@@ -15,7 +15,7 @@ class Graph {
   }
 
   // Run through all edges and show connected vertices by each one of them
-  void show_graph() {
+  void show_graph() const {
     for (const auto& edge : edges) {
       std::cout << edge.id() << " : " << edge.from_vertex_id() << " --> "
                 << edge.to_vertex_id() << std::endl;
