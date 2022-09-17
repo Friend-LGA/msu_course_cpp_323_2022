@@ -47,16 +47,6 @@ void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
   vertex_map[Vertex(to_vertex_id)].insert(edge);
 }
 
-void Graph::print_graph_info() {
-  for (const auto& vertex : vertex_map) {
-    std::cout << vertex.first.id() << " :";
-    for (const auto& edge : vertex.second) {
-      std::cout << " " << edge.id();
-    }
-    std::cout << std::endl;
-  }
-}
-
 const int kVerticesCount = 13;
 
 int main() {
@@ -84,8 +74,6 @@ int main() {
   graph.add_edge(10, 13);
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
-
-  // graph.print_graph_info();
 
   return 0;
 }
