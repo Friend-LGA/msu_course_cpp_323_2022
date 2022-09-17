@@ -5,7 +5,7 @@ struct Graph::Edge {
   Edge(EdgeId id, VertexId from_vertex_id, VertexId to_vertex_id)
       : id_(id), from_vertex_id_(from_vertex_id), to_vertex_id_(to_vertex_id) {}
 
-  bool operator<(const Edge& rv) const { return rv.id_ > id_; }
+  bool operator<(const Edge& edge) const { return edge.id_ > id_; }
 
   EdgeId id() const { return id_; }
   VertexId from_vertex_id() const { return from_vertex_id_; }
@@ -23,7 +23,6 @@ struct Graph::Vertex {
   explicit Vertex(const Vertex& vertex) : id_(vertex.id_) {}
 
   bool operator<(const Vertex& vertex) const { return vertex.id_ > id_; };
-  bool operator==(const Vertex& vertex) const { return vertex.id_ == id_; };
 
   VertexId id() const { return id_; };
 
