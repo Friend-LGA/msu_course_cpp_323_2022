@@ -15,6 +15,6 @@ class Graph {
   void add_edge(VertexId from_vertex_id, VertexId to_vertex_id);
 
  private:
-  std::map<Vertex, std::set<Edge>> vertex_map;
-  EdgeId _next_edge_id = 0;
+  std::map<Vertex, std::set<Edge>> vertex_map_;
+  EdgeId next_edge_id_ = 0;
 };

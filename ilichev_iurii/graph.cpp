@@ -5,11 +5,19 @@ struct Graph::Edge {
   Edge(EdgeId id, VertexId from_vertex_id, VertexId to_vertex_id)
       : id_(id), from_vertex_id_(from_vertex_id), to_vertex_id_(to_vertex_id) {}
 
-  bool operator<(const Edge& rv) const { return rv.id_ > id_; }
+  bool operator<(const Edge& rv) const {
+    return rv.id_ > id_;
+  }
 
-  EdgeId id() const { return id_; }
-  VertexId from_vertex_id() const { return from_vertex_id_; }
-  VertexId to_vertex_id() const { return to_vertex_id_; }
+  EdgeId id() const {
+    return id_;
+  }
+  VertexId from_vertex_id() const {
+    return from_vertex_id_;
+  }
+  VertexId to_vertex_id() const {
+    return to_vertex_id_;
+  }
 
  private:
   EdgeId id_ = 0;
@@ -22,29 +30,35 @@ struct Graph::Vertex {
   explicit Vertex(VertexId id) : id_(id) {}
   explicit Vertex(const Vertex& vertex) : id_(vertex.id_) {}
 
-  bool operator<(const Vertex& vertex) const { return vertex.id_ > id_; };
-  bool operator==(const Vertex& vertex) const { return vertex.id_ == id_; };
+  bool operator<(const Vertex& vertex) const {
+    return vertex.id_ > id_;
+  };
+  bool operator==(const Vertex& vertex) const {
+    return vertex.id_ == id_;
+  };
 
-  VertexId id() const { return id_; };
+  VertexId id() const {
+    return id_;
+  };
 
  private:
   VertexId id_;
 };
 
 void Graph::add_vertex() {
-  vertex_map.insert(
-      std::make_pair(Vertex(vertex_map.size()), std::set<Edge>()));
+  vertex_map_.insert(
+      std::make_pair(Vertex(vertex_map_.size()), std::set<Edge>()));
 }
 
 void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-  if (vertex_map.find(Vertex(from_vertex_id)) == vertex_map.end() ||
-      vertex_map.find(Vertex(to_vertex_id)) == vertex_map.end()) {
+  if (vertex_map_.find(Vertex(from_vertex_id)) == vertex_map_.end() ||
+      vertex_map_.find(Vertex(to_vertex_id)) == vertex_map_.end()) {
     return;
   }
 
-  auto edge = Edge(_next_edge_id++, from_vertex_id, to_vertex_id);
-  vertex_map[Vertex(from_vertex_id)].insert(edge);
-  vertex_map[Vertex(to_vertex_id)].insert(edge);
+  auto edge = Edge(next_edge_id_++, from_vertex_id, to_vertex_id);
+  vertex_map_[Vertex(from_vertex_id)].insert(edge);
+  vertex_map_[Vertex(to_vertex_id)].insert(edge);
 }
 
 const int kVerticesCount = 13;
