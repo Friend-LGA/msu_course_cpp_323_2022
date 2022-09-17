@@ -32,7 +32,8 @@ struct Graph::Vertex {
 };
 
 void Graph::add_vertex() {
-  vertex_map.insert(std::make_pair(Vertex(vertex_map.size()), std::set<Edge>()));
+  vertex_map.insert(
+      std::make_pair(Vertex(vertex_map.size()), std::set<Edge>()));
 }
 
 void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
