@@ -85,7 +85,7 @@ int main() {
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
 
-  graph.print_graph_info();
+  // graph.print_graph_info();
 
   return 0;
 }
