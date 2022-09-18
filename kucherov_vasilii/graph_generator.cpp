@@ -7,10 +7,10 @@ class Graph {
   using VertexId = int;
   using EdgeId = int;
 
-  void add_vertex() { vertices.emplace_back(get_new_vertex_id()); }
+  void add_vertex() { vertices_.emplace_back(get_new_vertex_id()); }
 
   void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    edges.emplace_back(get_new_edge_id, from_vertex_id, to_vertex_id);
+    edges_.emplace_back(get_new_edge_id, from_vertex_id, to_vertex_id);
   }
 
  private:
@@ -46,8 +46,8 @@ class Graph {
 
   VertexId vertices_count_ = 0;
   EdgeId edges_count_ = 0;
-  std::vector<Vertex> vertices;
-  std::vector<Edge> edges;
+  std::vector<Vertex> vertices_;
+  std::vector<Edge> edges_;
 };
 
 int main() {
