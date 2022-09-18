@@ -7,10 +7,10 @@ class Graph {
   using VertexId = int;
   using EdgeId = int;
 
-  void add_vertex() { vertices.emplace_back(vertices_count_++); }
+  void add_vertex() { vertices.emplace_back(get_new_vertex_id()); }
 
   void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    edges.emplace_back(edges_count_++, from_vertex_id, to_vertex_id);
+    edges.emplace_back(get_new_edge_id, from_vertex_id, to_vertex_id);
   }
 
  private:
@@ -39,6 +39,10 @@ class Graph {
    private:
     VertexId id_ = 0;
   };
+
+  VertexId get_new_vertex_id() { return vertices_count_++; }
+
+  EdgeId get_new_edge_id() { return edges_count_++; }
 
   VertexId vertices_count_ = 0;
   EdgeId edges_count_ = 0;
