@@ -3,8 +3,6 @@
 
 #include <list>
 #include <map>
-#include <set>
-#include <utility>
 
 // An undirected graph, there can be only one edge between any two vertices
 class Graph {
