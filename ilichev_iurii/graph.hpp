@@ -3,6 +3,7 @@
 
 #include <list>
 #include <map>
+#include <vector>
 
 // An undirected graph, there can be only one edge between any two vertices
 class Graph {
@@ -41,8 +42,8 @@ class Graph {
   bool edge_correctness(VertexId from_vertex_id, VertexId to_vertex_id);
 
  private:
-  std::map<VertexId, Vertex> vertexes_;
-  std::map<EdgeId, Edge> edges_;
+  std::vector<Vertex> vertexes_;
+  std::vector<Edge> edges_;
   std::map<VertexId, std::list<EdgeId>> vertex_edges_;
 };
 
