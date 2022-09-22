@@ -1,4 +1,6 @@
-#include "graph.h"
+#include "graph.hpp"
+#include <iostream>
+#include <cassert>
 
 struct Graph::Vertex {
  public:
@@ -28,38 +30,34 @@ struct Graph::Edge {
 };
 
 void Graph::add_vertex() {
-  verticies_map.insert({Vertex(verticies_map.size()), {}});
+  verticies_map_.insert({Vertex(verticies_map_.size()), {}});
 }
 
 void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-  const auto from_vertex_id_iterator =
-      verticies_map.find(Vertex(from_vertex_id));
-  const auto to_vertex_id_iterator = verticies_map.find(Vertex(from_vertex_id));
+  assert(verticies_map_.find(Vertex(from_vertex_id)) != verticies_map_.end() &&
+      verticies_map_.find(Vertex(from_vertex_id)) != verticies_map_.end());
 
-  if (from_vertex_id_iterator != verticies_map.end() &&
-      to_vertex_id_iterator != verticies_map.end()) {
-    Edge new_edge(edges.size(), from_vertex_id, to_vertex_id);
+  const Edge new_edge(edges_.size(), from_vertex_id, to_vertex_id);
 
-    verticies_map[Vertex(from_vertex_id)].insert(new_edge);
-    verticies_map[Vertex(to_vertex_id)].insert(new_edge);
-    edges.insert(new_edge);
-  }
+  verticies_map_[Vertex(from_vertex_id)].insert(new_edge.id());
+  verticies_map_[Vertex(to_vertex_id)].insert(new_edge.id());
+  edges_.insert(new_edge);
 }
 
 void Graph::print_graph_info() {
-  for (const auto& vertex : verticies_map) {
+  for (const auto& vertex : verticies_map_) {
     std::cout << vertex.first.id() << " :";
-    for (const auto& edge : vertex.second) {
-      std::cout << " " << edge.id();
+    for (const auto& edge_id : vertex.second) {
+      std::cout << " " << edge_id;
     }
     std::cout << std::endl;
   }
 }
 
+static constexpr int kVerticesCount = 13;
+
 int main() {
   auto graph = Graph();
-
-  int kVerticesCount = 13;
 
   for (int i = 0; i < kVerticesCount; i++) {
     graph.add_vertex();
@@ -84,7 +82,7 @@ int main() {
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
 
-  // graph.print_graph_info();
+  graph.print_graph_info();
 
   return 0;
 }

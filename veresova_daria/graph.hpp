@@ -1,4 +1,3 @@
-#include <iostream>
 #include <map>
 #include <set>
 
@@ -14,6 +13,6 @@ class Graph {
  private:
   struct Vertex;
   struct Edge;
-  std::map<Vertex, std::set<Edge>> verticies_map;
-  std::set<Edge> edges;
+  std::map<Vertex, std::set<EdgeId>> verticies_map_;
+  std::set<Edge> edges_;
 };
