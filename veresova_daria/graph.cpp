@@ -1,6 +1,6 @@
 #include "graph.hpp"
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
 struct Graph::Vertex {
  public:
@@ -35,7 +35,7 @@ void Graph::add_vertex() {
 
 void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
   assert(verticies_map_.find(Vertex(from_vertex_id)) != verticies_map_.end() &&
-      verticies_map_.find(Vertex(from_vertex_id)) != verticies_map_.end());
+         verticies_map_.find(Vertex(from_vertex_id)) != verticies_map_.end());
 
   const Edge new_edge(edges_.size(), from_vertex_id, to_vertex_id);
 
