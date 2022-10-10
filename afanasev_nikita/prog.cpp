@@ -1,52 +1,15 @@
 #include <cassert>
+#include <deque>
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <unordered_map>
 #include <vector>
-
-constexpr int kVerticesCount = 14;
 
 class Graph {
  public:
   using VertexId = int;
   using EdgeId = int;
-
-  void add_vertex() { vertices_.emplace_back(next_vertex_id()); }
-
-  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    assert((void("vertex_presence_check failed"),
-            vertex_presence_check(from_vertex_id)));
-    assert((void("vertex_presence_check failed"),
-            vertex_presence_check(to_vertex_id)));
-    assert((void("edge_presence_check failed"),
-            edge_presence_check(from_vertex_id, to_vertex_id)));
-    edges_.emplace_back(next_edge_id(), from_vertex_id, to_vertex_id);
-  }
-
- private:
-  VertexId curr_vertex_id_ = 0;
-  EdgeId curr_edge_id_ = 0;
-
-  VertexId next_vertex_id() { return curr_vertex_id_++; }
-
-  EdgeId next_edge_id() { return curr_edge_id_++; }
-
-  bool vertex_presence_check(VertexId vertex_id) const {
-    if (curr_vertex_id_ == 0 || vertex_id < 0 || vertex_id >= curr_vertex_id_) {
-      return false;
-    }
-    return true;
-  }
-
-  bool edge_presence_check(VertexId from_vertex_id,
-                           VertexId to_vertex_id) const {
-    for (auto next : edges_) {
-      if (next.from_vertex_id() == from_vertex_id &&
-              next.to_vertex_id() == to_vertex_id ||
-          next.from_vertex_id() == to_vertex_id &&
-              next.to_vertex_id() == from_vertex_id) {
-        return false;
-      }
-    }
-    return true;
-  }
 
   struct Vertex {
    public:
@@ -74,11 +37,69 @@ class Graph {
     VertexId to_vertex_id_ = 0;
   };
 
+  void add_vertex() {
+    const auto temp = next_vertex_id();
+    vertices_.emplace_back(temp);
+    vertex_id_edges_ids_map_[temp];
+  }
+
+  void add_edge(const VertexId from_vertex_id, const VertexId to_vertex_id) {
+    assert((void("vertex_presence_check failed"),
+            vertex_presence_check(from_vertex_id)));
+    assert((void("vertex_presence_check failed"),
+            vertex_presence_check(to_vertex_id)));
+    assert((void("edge_presence_check failed"),
+            edge_presence_check(from_vertex_id, to_vertex_id)));
+    const auto temp = next_edge_id();
+    edges_.emplace_back(temp, from_vertex_id, to_vertex_id);
+    vertex_id_edges_ids_map_[from_vertex_id].push_back(temp);
+    vertex_id_edges_ids_map_[to_vertex_id].push_back(temp);
+  }
+
+  const std::deque<EdgeId>& deque_of_edges_ids(const VertexId id) const {
+    return vertex_id_edges_ids_map_.at(id);
+  }
+
+  const std::vector<Vertex>& vertices() const { return vertices_; }
+
+  const std::vector<Edge>& edges() const { return edges_; }
+
+ private:
+  VertexId curr_vertex_id_ = 0;
+  EdgeId curr_edge_id_ = 0;
+
+  VertexId next_vertex_id() { return curr_vertex_id_++; }
+
+  EdgeId next_edge_id() { return curr_edge_id_++; }
+
+  bool vertex_presence_check(VertexId vertex_id) const {
+    if (curr_vertex_id_ == 0 || vertex_id < 0 || vertex_id >= curr_vertex_id_) {
+      return false;
+    }
+    return true;
+  }
+
+  bool edge_presence_check(VertexId from_vertex_id,
+                           VertexId to_vertex_id) const {
+    for (const auto& next : edges_) {
+      if (next.from_vertex_id() == from_vertex_id &&
+              next.to_vertex_id() == to_vertex_id ||
+          next.from_vertex_id() == to_vertex_id &&
+              next.to_vertex_id() == from_vertex_id) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   std::vector<Vertex> vertices_;
   std::vector<Edge> edges_;
+  std::unordered_map<VertexId, std::deque<EdgeId>> vertex_id_edges_ids_map_;
 };
 
-int main() {
+const Graph generate_graph() {
+  const int kVerticesCount = 14;
+
   auto graph = Graph();
 
   for (int i = 0; i < kVerticesCount; i++) {
@@ -103,6 +124,95 @@ int main() {
   graph.add_edge(10, 13);
   graph.add_edge(11, 13);
   graph.add_edge(12, 13);
+
+  return graph;
+}
+
+namespace printing {
+namespace json {
+std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
+  std::string s = "{";
+
+  s += "\"id\":";
+  s += std::to_string(vertex.id());
+
+  s += ",";
+
+  s += "\"edge_ids\":[";
+  const auto& temp = graph.deque_of_edges_ids(vertex.id());
+  for (const auto& i : temp) {
+    s += std::to_string(i);
+    s += ",";
+  }
+  if (!s.empty()) {
+    s.pop_back();
+  }
+  s += "]";
+
+  s += "}";
+  return s;
+}
+std::string print_edge(const Graph::Edge& edge, const Graph& graph) {
+  std::string s = "{";
+
+  s += "\"id\":";
+  s += std::to_string(edge.id());
+
+  s += ",";
+
+  s += "\"vertex_ids\":[";
+  s += std::to_string(edge.from_vertex_id());
+  s += ",";
+  s += std::to_string(edge.to_vertex_id());
+  s += "]";
+
+  s += "}";
+  return s;
+}
+std::string print_graph(const Graph& graph) {
+  std::string s = "{";
+
+  s += "\"vertices\":[";
+  const auto& vertices = graph.vertices();
+  for (const auto& i : vertices) {
+    s += print_vertex(i, graph);
+    s += ",";
+  }
+  if (!s.empty()) {
+    s.pop_back();
+  }
+  s += "]";
+
+  s += ",";
+
+  s += "\"edges\":[";
+  const auto& edges = graph.edges();
+  for (const auto& i : edges) {
+    s += print_edge(i, graph);
+    s += ",";
+  }
+  if (!s.empty()) {
+    s.pop_back();
+  }
+  s += "]";
+
+  s += "}";
+  return s;
+}
+}  // namespace json
+}  // namespace printing
+
+void write_to_file(const std::string& string, const std::string& file_name) {
+  std::ofstream file(file_name);
+  file << string;
+  file.close();
+}
+
+int main() {
+  const auto graph = generate_graph();
+  const auto graph_json = printing::json::print_graph(graph);
+  std::cout << graph_json << std::endl;
+  write_to_file(graph_json, "graph.json");
 
   return 0;
 }
