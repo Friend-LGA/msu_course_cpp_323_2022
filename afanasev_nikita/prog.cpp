@@ -1,5 +1,4 @@
 #include <cassert>
-#include <deque>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -38,63 +37,61 @@ class Graph {
   };
 
   void add_vertex() {
-    const auto temp = next_vertex_id();
-    vertices_.emplace_back(temp);
-    vertex_id_edges_ids_map_[temp];
+    const auto vertex_id = next_vertex_id();
+    vertices_.try_emplace(vertex_id, vertex_id);
+    adjacency_list_[vertex_id];
   }
 
-  void add_edge(const VertexId from_vertex_id, const VertexId to_vertex_id) {
-    assert((void("vertex_presence_check failed"),
-            vertex_presence_check(from_vertex_id)));
-    assert((void("vertex_presence_check failed"),
-            vertex_presence_check(to_vertex_id)));
-    assert((void("edge_presence_check failed"),
-            edge_presence_check(from_vertex_id, to_vertex_id)));
-    const auto temp = next_edge_id();
-    edges_.emplace_back(temp, from_vertex_id, to_vertex_id);
-    vertex_id_edges_ids_map_[from_vertex_id].push_back(temp);
-    vertex_id_edges_ids_map_[to_vertex_id].push_back(temp);
+  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
+    assert(has_vertex(from_vertex_id));
+    assert(has_vertex(to_vertex_id));
+    assert(!has_edge(from_vertex_id, to_vertex_id));
+    const auto edge_id = next_edge_id();
+    edges_.try_emplace(edge_id, edge_id, from_vertex_id, to_vertex_id);
+    adjacency_list_[from_vertex_id].push_back(edge_id);
+    adjacency_list_[to_vertex_id].push_back(edge_id);
   }
 
-  const std::deque<EdgeId>& deque_of_edges_ids(const VertexId id) const {
-    return vertex_id_edges_ids_map_.at(id);
+  const std::vector<EdgeId>& get_edges_ids(const VertexId id) const {
+    return adjacency_list_.at(id);
   }
 
-  const std::vector<Vertex>& vertices() const { return vertices_; }
+  const std::unordered_map<VertexId, Vertex>& vertices() const {
+    return vertices_;
+  }
 
-  const std::vector<Edge>& edges() const { return edges_; }
+  const std::unordered_map<EdgeId, Edge>& edges() const { return edges_; }
 
  private:
-  VertexId curr_vertex_id_ = 0;
-  EdgeId curr_edge_id_ = 0;
+  VertexId current_vertex_id_ = 0;
+  EdgeId current_edge_id_ = 0;
 
-  VertexId next_vertex_id() { return curr_vertex_id_++; }
+  VertexId next_vertex_id() { return current_vertex_id_++; }
 
-  EdgeId next_edge_id() { return curr_edge_id_++; }
+  EdgeId next_edge_id() { return current_edge_id_++; }
 
-  bool vertex_presence_check(VertexId vertex_id) const {
-    if (curr_vertex_id_ == 0 || vertex_id < 0 || vertex_id >= curr_vertex_id_) {
-      return false;
-    }
-    return true;
+  bool has_vertex(VertexId vertex_id) const {
+    return vertices_.find(vertex_id) != vertices_.end();
   }
 
-  bool edge_presence_check(VertexId from_vertex_id,
-                           VertexId to_vertex_id) const {
-    for (const auto& next : edges_) {
-      if (next.from_vertex_id() == from_vertex_id &&
-              next.to_vertex_id() == to_vertex_id ||
-          next.from_vertex_id() == to_vertex_id &&
-              next.to_vertex_id() == from_vertex_id) {
-        return false;
+  bool has_edge(VertexId from_vertex_id, VertexId to_vertex_id) const {
+    assert(adjacency_list_.find(from_vertex_id) != adjacency_list_.end());
+    assert(adjacency_list_.find(to_vertex_id) != adjacency_list_.end());
+    const auto& connected_from_edges_ids = adjacency_list_.at(from_vertex_id);
+    const auto& connected_to_edges_ids = adjacency_list_.at(to_vertex_id);
+    for (auto from_edge_id : connected_from_edges_ids) {
+      for (auto to_edge_id : connected_to_edges_ids) {
+        if (from_edge_id == to_edge_id) {
+          return true;
+        }
       }
     }
-    return true;
+    return false;
   }
 
-  std::vector<Vertex> vertices_;
-  std::vector<Edge> edges_;
-  std::unordered_map<VertexId, std::deque<EdgeId>> vertex_id_edges_ids_map_;
+  std::unordered_map<VertexId, Vertex> vertices_;
+  std::unordered_map<EdgeId, Edge> edges_;
+  std::unordered_map<VertexId, std::vector<EdgeId>> adjacency_list_;
 };
 
 const Graph generate_graph() {
@@ -139,7 +136,7 @@ std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
   s += ",";
 
   s += "\"edge_ids\":[";
-  const auto& temp = graph.deque_of_edges_ids(vertex.id());
+  const auto& temp = graph.get_edges_ids(vertex.id());
   for (const auto& i : temp) {
     s += std::to_string(i);
     s += ",";
@@ -175,7 +172,7 @@ std::string print_graph(const Graph& graph) {
   s += "\"vertices\":[";
   const auto& vertices = graph.vertices();
   for (const auto& i : vertices) {
-    s += print_vertex(i, graph);
+    s += print_vertex(i.second, graph);
     s += ",";
   }
   if (!s.empty()) {
@@ -188,7 +185,7 @@ std::string print_graph(const Graph& graph) {
   s += "\"edges\":[";
   const auto& edges = graph.edges();
   for (const auto& i : edges) {
-    s += print_edge(i, graph);
+    s += print_edge(i.second, graph);
     s += ",";
   }
   if (!s.empty()) {
