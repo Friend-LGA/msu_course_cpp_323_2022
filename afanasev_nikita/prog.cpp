@@ -1,9 +1,9 @@
+#include <cassert>
 #include <fstream>
 #include <iostream>
-#include <cassert>
 #include <string>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 class Graph {
  public:
