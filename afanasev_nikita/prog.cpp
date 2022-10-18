@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <vector>
 
+constexpr int kVerticesCount = 14;
+
 class Graph {
  public:
   using VertexId = int;
@@ -97,11 +99,9 @@ class Graph {
 };
 
 const Graph generate_graph() {
-  const int vertices_count = 14;
-
   auto graph = Graph();
 
-  for (int i = 0; i < vertices_count; i++) {
+  for (int i = 0; i < kVerticesCount; i++) {
     graph.add_vertex();
   }
 
@@ -138,14 +138,13 @@ std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
   result += ",";
 
   result += "\"edge_ids\":[";
-  const auto& temp = graph.connected_edge_ids(vertex.id());
-  for (const auto edge_id : temp) {
+  const auto& edge_ids = graph.connected_edge_ids(vertex.id());
+  for (const auto edge_id : edge_ids) {
     result += std::to_string(edge_id);
     result += ",";
   }
-  if (!result.empty()) {
-    result.pop_back();
-  }
+  result.pop_back();
+
   result += "]";
 
   result += "}";
@@ -173,26 +172,24 @@ std::string print_graph(const Graph& graph) {
 
   result += "\"vertices\":[";
   const auto& vertices = graph.vertices();
-  for (const auto& vertex : vertices) {
-    result += print_vertex(vertex.second, graph);
+  for (const auto& [vertex_id, vertex] : vertices) {
+    result += print_vertex(vertex, graph);
     result += ",";
   }
-  if (!result.empty()) {
-    result.pop_back();
-  }
+  result.pop_back();
+
   result += "]";
 
   result += ",";
 
   result += "\"edges\":[";
   const auto& edges = graph.edges();
-  for (const auto& edge : edges) {
-    result += print_edge(edge.second);
+  for (const auto& [edge_id, edge] : edges) {
+    result += print_edge(edge);
     result += ",";
   }
-  if (!result.empty()) {
-    result.pop_back();
-  }
+  result.pop_back();
+
   result += "]";
 
   result += "}\n";
