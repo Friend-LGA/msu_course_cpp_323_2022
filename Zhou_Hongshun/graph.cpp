@@ -6,7 +6,7 @@ class Graph {
   using VertexId = int;
   using EdgeId = int;
   void add_vertex();
-  void add_edge(VertexId from_vertex_id,VertexId  to_vertex_id);
+  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id);
 
  private:
   struct Vertex {
@@ -44,11 +44,11 @@ class Graph {
   VertexId last_vertex_id_ = 0;
   EdgeId last_edge_id_ = 0;
 };
-void Graph::add_vertex()
-{vertexes_.emplace_back(Graph::get_new_vertex_id());
+void Graph::add_vertex() {
+  vertexes_.emplace_back(Graph::get_new_vertex_id());
 }
-void Graph::add_edge(VertexId from_vertex_id,VertexId to_vertex_id)
-{edges_.emplace_back(Graph::get_new_edge_id(),from_vertex_id,to_vertex_id);
+void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
+  edges_.emplace_back(Graph::get_new_edge_id(), from_vertex_id, to_vertex_id);
 }
 constexpr int kVertexesCount = 14;
 int main() {
