@@ -51,7 +51,6 @@ class Graph {
     edges_.emplace(new_edge_id, Edge(new_edge_id, new_edge_id, to_vertex_id));
 
     adjacency_list_[from_vertex_id].push_back(new_edge_id);
-    adjacency_list_[to_vertex_id].push_back(new_edge_id);
 
     if (from_vertex_id != to_vertex_id) {
       adjacency_list_[to_vertex_id].push_back(new_edge_id);
