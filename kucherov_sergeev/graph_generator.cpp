@@ -1,186 +1,244 @@
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include <algorithm>
+#include <atomic>
+#include <cassert>
+#include <list>
+#include <random>
+#include <thread>
 
-const int kVerticesCount = 14;
+#include "graph.hpp"
+#include "graph_generator.hpp"
 
-class Graph {
- public:
-  using VertexId = int;
-  using EdgeId = int;
+namespace uni_course_cpp {
+namespace {
+const int kMaxThreadsCount = std::thread::hardware_concurrency();
+static constexpr float kEdgeGreenProbability = 0.1;
+static constexpr float kEdgeRedProbability = 0.33;
+static constexpr Graph::Depth kYellowEdgeLength = 1;
+static constexpr Graph::Depth kRedEdgeLength = 2;
 
-  struct Edge {
-   public:
-    Edge(EdgeId id, VertexId from_vertex_id, VertexId to_vertex_id)
-        : id_(id),
-          from_vertex_id_(from_vertex_id),
-          to_vertex_id_(to_vertex_id) {}
-
-    EdgeId id() const { return id_; }
-    VertexId from_vertex_id() const { return from_vertex_id_; }
-    VertexId to_vertex_id() const { return to_vertex_id_; }
-
-   private:
-    EdgeId id_ = 0;
-    VertexId from_vertex_id_ = 0;
-    VertexId to_vertex_id_ = 0;
-  };
-
-  struct Vertex {
-   public:
-    explicit Vertex(VertexId id) : id_(id) {}
-    VertexId id() const { return id_; }
-
-   private:
-    VertexId id_ = 0;
-  };
-
-  void add_vertex() { vertices_.emplace_back(get_new_vertex_id()); }
-
-  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    const auto edge_id = get_new_edge_id();
-
-    edges_.emplace_back(edge_id, from_vertex_id, to_vertex_id);
-
-    adjacency_list_[from_vertex_id].push_back(edge_id);
-    if (to_vertex_id != from_vertex_id) {
-      adjacency_list_[to_vertex_id].push_back(edge_id);
-    }
-  }
-
-  const std::vector<EdgeId>& get_connected_edge_ids(VertexId vertex_id) const {
-    if (adjacency_list_.find(vertex_id) == adjacency_list_.end()) {
-      static const std::vector<EdgeId> empty_result;
-      return empty_result;
-    }
-
-    return adjacency_list_.at(vertex_id);
-  }
-
-  const std::vector<Vertex>& get_vertices() const { return vertices_; }
-
-  const std::vector<Edge>& get_edges() const { return edges_; }
-
- private:
-  VertexId get_new_vertex_id() { return next_free_vertex_id_++; }
-
-  EdgeId get_new_edge_id() { return next_free_edge_id_++; }
-
-  VertexId next_free_vertex_id_ = 0;
-  EdgeId next_free_edge_id_ = 0;
-  std::vector<Vertex> vertices_;
-  std::vector<Edge> edges_;
-  std::unordered_map<VertexId, std::vector<EdgeId>> adjacency_list_;
-};
-
-namespace printing {
-namespace json {
-
-std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
-  std::string vertex_json =
-      "{\"id\":" + std::to_string(vertex.id()) + ",\"edge_ids\":[";
-  const auto& connected_edge_ids = graph.get_connected_edge_ids(vertex.id());
-
-  if (connected_edge_ids.size() != 0) {
-    for (const auto edge_id : connected_edge_ids) {
-      vertex_json += std::to_string(edge_id) + ",";
-    }
-
-    vertex_json.pop_back();
-  }
-
-  vertex_json += "]}";
-
-  return vertex_json;
+bool get_random_bool(float true_probability) {
+  std::random_device random_device;
+  std::mt19937 generator(random_device());
+  std::bernoulli_distribution bernoulli_distribution(true_probability);
+  return bernoulli_distribution(generator);
 }
 
-std::string print_edge(const Graph::Edge& edge) {
-  std::string edge_json =
-      "{\"id\":" + std::to_string(edge.id()) + ",\"vertex_ids\":[";
-
-  edge_json += std::to_string(edge.from_vertex_id()) + "," +
-               std::to_string(edge.to_vertex_id());
-  edge_json += "]}";
-
-  return edge_json;
-}
-
-std::string print_graph(const Graph& graph) {
-  const auto& vertices = graph.get_vertices();
-  const auto& edges = graph.get_edges();
-
-  std::string graph_json = "{\n\t\"vertices\": [\n";
-
-  if (vertices.size() != 0) {
-    for (const auto& vertex : vertices) {
-      graph_json += "\t\t" + print_vertex(vertex, graph) + ",\n";
+std::vector<Graph::VertexId> get_unconnected_vertex_ids(
+    const Graph& graph,
+    Graph::VertexId vertex_id) {
+  std::vector<Graph::VertexId> unconnected_vertex_ids = {};
+  for (const auto next_depth_vertex_id :
+       graph.get_depth_vertex_ids(graph.get_vertex_depth(vertex_id) + 1)) {
+    if (!graph.is_vertices_connected(vertex_id, next_depth_vertex_id)) {
+      unconnected_vertex_ids.push_back(next_depth_vertex_id);
     }
-    graph_json.pop_back();
-    graph_json.pop_back();
   }
 
-  graph_json += "\n\t],\n\t\"edges\":[\n";
+  return unconnected_vertex_ids;
+}
 
-  if (edges.size() != 0) {
-    for (const auto& edge : edges) {
-      graph_json += "\t\t" + print_edge(edge) + ",\n";
+Graph::VertexId get_random_vertex_id(
+    const std::vector<Graph::VertexId>& vertex_ids) {
+  assert((!vertex_ids.empty()) &&
+         "Can't pick random vertex id from empty list");
+
+  std::random_device random_device;
+  std::mt19937 generator(random_device());
+  std::uniform_int_distribution<> uniform_int_distribution(
+      0, vertex_ids.size() - 1);
+
+  return vertex_ids[uniform_int_distribution(generator)];
+}
+
+void generate_green_edges(Graph& graph, std::mutex& graph_mutex) {
+  for (Graph::Depth current_depth = kGraphDefaultDepth;
+       current_depth <= graph.get_depth(); current_depth++) {
+    const auto& current_depth_vertex_ids =
+        graph.get_depth_vertex_ids(current_depth);
+    if (!current_depth_vertex_ids.empty()) {
+      std::for_each(current_depth_vertex_ids.begin(),
+                    current_depth_vertex_ids.end(),
+                    [&graph, &graph_mutex](Graph::VertexId vertex_id) {
+                      if (get_random_bool(kEdgeGreenProbability)) {
+                        const std::lock_guard lock(graph_mutex);
+                        graph.add_edge(vertex_id, vertex_id);
+                      }
+                    });
     }
-    graph_json.pop_back();
-    graph_json.pop_back();
+  }
+}
+
+void generate_yellow_edges(Graph& graph, std::mutex& graph_mutex) {
+  const auto graph_depth = graph.get_depth();
+
+  for (Graph::Depth current_depth = kGraphDefaultDepth;
+       current_depth <= graph_depth - kYellowEdgeLength; current_depth++) {
+    float new_edge_probability = current_depth / (graph_depth - 1.f);
+
+    const auto& current_depth_vertex_ids =
+        graph.get_depth_vertex_ids(current_depth);
+
+    if (!current_depth_vertex_ids.empty()) {
+      std::for_each(
+          current_depth_vertex_ids.begin(), current_depth_vertex_ids.end(),
+          [&graph, &graph_mutex,
+           new_edge_probability](Graph::VertexId vertex_id) {
+            if (get_random_bool(new_edge_probability)) {
+              const std::lock_guard lock(graph_mutex);
+              const auto& to_vertex_ids =
+                  get_unconnected_vertex_ids(graph, vertex_id);
+
+              if (to_vertex_ids.empty() == false) {
+                const auto to_vertex_id = get_random_vertex_id(to_vertex_ids);
+
+                graph.add_edge(vertex_id, to_vertex_id);
+              }
+            }
+          });
+    }
+  }
+}
+
+void generate_red_edges(Graph& graph, std::mutex& graph_mutex) {
+  const auto max_depth = graph.get_depth() - kRedEdgeLength;
+  for (Graph::Depth current_depth = kGraphDefaultDepth;
+       current_depth <= max_depth; current_depth++) {
+    const auto& to_vertex_ids =
+        graph.get_depth_vertex_ids(current_depth + kRedEdgeLength);
+
+    if (to_vertex_ids.empty()) {
+      break;
+    }
+
+    const auto& current_depth_vertex_ids =
+        graph.get_depth_vertex_ids(current_depth);
+    if (!current_depth_vertex_ids.empty()) {
+      std::for_each(
+          current_depth_vertex_ids.begin(), current_depth_vertex_ids.end(),
+          [&graph, &graph_mutex, &to_vertex_ids](Graph::VertexId vertex_id) {
+            if (get_random_bool(kEdgeRedProbability)) {
+              const auto to_vertex_id = get_random_vertex_id(to_vertex_ids);
+              const std::lock_guard lock(graph_mutex);
+              graph.add_edge(vertex_id, to_vertex_id);
+            }
+          });
+    }
+  }
+}
+}  // namespace
+
+void GraphGenerator::generate_grey_branch(Graph& graph,
+                                          Graph::VertexId root_vertex_id,
+                                          Graph::Depth current_depth,
+                                          std::mutex& graph_mutex) const {
+  const float new_vertex_probability =
+      1.f - (current_depth - 1.f) / (params_.depth() - 1.f);
+
+  if (!get_random_bool(new_vertex_probability)) {
+    return;
   }
 
-  graph_json += "\n\t]\n}\n";
+  const auto new_vertex_id = [&graph_mutex, &graph, root_vertex_id]() {
+    const std::lock_guard lock(graph_mutex);
+    const auto new_vertex_id = graph.add_vertex();
+    graph.add_edge(root_vertex_id, new_vertex_id);
+    return new_vertex_id;
+  }();
 
-  return graph_json;
+  for (int attempt = 0; attempt < params_.new_vertices_count(); attempt++) {
+    if (current_depth < params_.depth()) {
+      generate_grey_branch(graph, new_vertex_id, current_depth + 1,
+                           graph_mutex);
+    }
+  }
 }
-}  // namespace json
-}  // namespace printing
 
-Graph generate_graph() {
+Graph GraphGenerator::generate() const {
   auto graph = Graph();
 
-  for (int i = 0; i < kVerticesCount; i++) {
-    graph.add_vertex();
-  }
+  if (params_.depth() != 0) {
+    const auto root_id = graph.add_vertex();
+    generate_grey_edges(graph, root_id);
 
-  graph.add_edge(0, 1);
-  graph.add_edge(0, 2);
-  graph.add_edge(0, 3);
-  graph.add_edge(1, 4);
-  graph.add_edge(1, 5);
-  graph.add_edge(1, 6);
-  graph.add_edge(2, 7);
-  graph.add_edge(2, 8);
-  graph.add_edge(3, 9);
-  graph.add_edge(4, 10);
-  graph.add_edge(5, 10);
-  graph.add_edge(6, 10);
-  graph.add_edge(7, 11);
-  graph.add_edge(8, 11);
-  graph.add_edge(9, 12);
-  graph.add_edge(10, 13);
-  graph.add_edge(11, 13);
-  graph.add_edge(12, 13);
+    std::mutex graph_mutex;
+
+    auto greed_edges_thread = std::thread(
+        [&graph, &graph_mutex]() { generate_green_edges(graph, graph_mutex); });
+
+    auto yellow_edges_thread = std::thread([&graph, &graph_mutex]() {
+      generate_yellow_edges(graph, graph_mutex);
+    });
+
+    auto red_edges_thread = std::thread(
+        [&graph, &graph_mutex]() { generate_red_edges(graph, graph_mutex); });
+
+    greed_edges_thread.join();
+    yellow_edges_thread.join();
+    red_edges_thread.join();
+  }
 
   return graph;
 }
 
-void write_to_file(const std::string& graph_json,
-                   const std::string& file_name) {
-  std::ofstream json_file(file_name);
+void GraphGenerator::generate_grey_edges(Graph& graph,
+                                         Graph::VertexId root_id) const {
+  std::mutex jobs_mutex, graph_mutex;
 
-  json_file << graph_json;
+  using JobCallback = std::function<void()>;
+  auto jobs = std::list<JobCallback>();
 
-  json_file.close();
+  for (int i = 0; i < params_.new_vertices_count(); i++) {
+    jobs.push_back([&graph, root_id, &graph_mutex, this]() {
+      generate_grey_branch(graph, root_id, graph.get_vertex_depth(root_id),
+                           graph_mutex);
+    });
+  }
+
+  std::atomic<bool> should_terminate = false;
+  std::atomic<int> jobs_count = jobs.size();
+
+  const auto worker = [&should_terminate, &jobs_mutex, &jobs_count, &jobs]() {
+    while (true) {
+      if (should_terminate) {
+        return;
+      }
+
+      const auto job_optional = [&jobs, &jobs_count,
+                                 &jobs_mutex]() -> std::optional<JobCallback> {
+        const std::lock_guard lock(jobs_mutex);
+
+        if (!jobs.empty()) {
+          auto job = jobs.back();
+          jobs.pop_back();
+          jobs_count = jobs.size();
+          return job;
+        }
+        return std::nullopt;
+      }();
+
+      const std::lock_guard lock(jobs_mutex);
+      if (job_optional.has_value()) {
+        const auto& job = job_optional.value();
+        job();
+      }
+    }
+  };
+
+  const auto threads_count =
+      std::min(kMaxThreadsCount, params_.new_vertices_count());
+  auto threads = std::vector<std::thread>();
+  threads.reserve(threads_count);
+
+  for (int i = 0; i < threads_count; i++) {
+    threads.emplace_back(worker);
+  }
+
+  while (jobs_count > 0) {
+  }
+
+  should_terminate = true;
+  for (auto& thread : threads) {
+    thread.join();
+  }
 }
-
-int main() {
-  const auto graph = generate_graph();
-  const auto graph_json = printing::json::print_graph(graph);
-  std::cout << graph_json << std::endl;
-  write_to_file(graph_json, "graph.json");
-
-  return 0;
-}
+}  // namespace uni_course_cpp

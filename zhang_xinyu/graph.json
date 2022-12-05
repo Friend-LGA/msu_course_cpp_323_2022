@@ -1,1 +1,1 @@
-{"depth":2,"vertices":[{"id":7,"edge_ids":[8],"depth":2},{"id":3,"edge_ids":[4],"depth":2},{"id":1,"edge_ids":[2],"depth":2},{"id":5,"edge_ids":[6],"depth":2},{"id":0,"edge_ids":[2,4,6,8],"depth":1}],"edges":[{"id":8,"vertex_ids":[0,7],"color":"grey"},{"id":6,"vertex_ids":[0,5],"color":"grey"},{"id":4,"vertex_ids":[0,3],"color":"grey"},{"id":2,"vertex_ids":[0,1],"color":"grey"}]}
+
