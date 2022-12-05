@@ -1,14 +1,7 @@
 #include "graph.hpp"
 #include <algorithm>
 #include <cassert>
-#include <iostream>
 
-static constexpr Graph::Depth kBaseDepth = 1;
-
-Graph::Depth Graph::get_vertex_depth(Graph::VertexId id)const{
-    assert(has_vertex(id));
-    return depth_of_vertices_.at(id);
-}
 
 Graph::Edge::Color Graph::define_color(Graph::VertexId from_vertex_id,
                                        Graph::VertexId to_vertex_id) const{
@@ -27,23 +20,6 @@ Graph::Edge::Color Graph::define_color(Graph::VertexId from_vertex_id,
     }
     
     return color;
-}
-
-Graph::VertexId Graph::add_vertex(){
-    const auto vertex_id = gen_new_vertex_id();
-    vertices_.insert(std::make_pair(vertex_id, Vertex(vertex_id)));
-    
-    if (vertices_of_depth_.empty()){
-        std::vector<VertexId> EmptyVertex_ = {};
-        vertices_of_depth_.emplace_back(EmptyVertex_);
-        vertices_of_depth_.emplace_back(EmptyVertex_);
-    }
-    
-    vertices_of_depth_[kBaseDepth].emplace_back(vertex_id);
-    depth_of_vertices_[vertex_id] = kBaseDepth;
-    connections_list_[vertex_id] = {};
-    
-    return vertex_id;
 }
 
 bool Graph::is_connected(Graph::VertexId from_vertex_id,
@@ -81,19 +57,4 @@ void Graph::set_vertex_depth(VertexId id, Depth depth){
     vertices_of_depth_[cur_depth].erase(std::remove(vertices_of_depth_[cur_depth].begin(),
                                                     vertices_of_depth_[cur_depth].end(), id));
 }
-
-void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id){
-    assert(has_vertex(from_vertex_id));
-    assert(has_vertex(to_vertex_id));
-    const auto edge_id = gen_new_vertex_id();
-    const auto edge_color = define_color(from_vertex_id, to_vertex_id);
-    
-    if(edge_color == Graph::Edge::Color::Grey){
-        set_vertex_depth(to_vertex_id, get_vertex_depth(from_vertex_id) +1 );
-    }
-    edges_.insert(std::make_pair(edge_id, Edge(edge_id, from_vertex_id, to_vertex_id, edge_color)));
-    if(from_vertex_id != to_vertex_id){
-        connections_list_[from_vertex_id].insert(edge_id);
-    }
-    connections_list_[to_vertex_id].insert(edge_id);
 }

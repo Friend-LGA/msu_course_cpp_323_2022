@@ -1,9 +1,12 @@
-#include <fstream>
+#include <filesystem>
 #include <iostream>
+#include <sstream>
+#include "config.hpp"
 #include "graph.hpp"
+#include "graph_generator.hpp"
+#include "logger.hpp"
 #include "printing.hpp"
-
-constexpr int kVerticesCount = 14;
+#include "printing_json.hpp"
 
 void write_to_file(const std::string& output_string,
                    const std::string& file_name) {
@@ -15,33 +18,88 @@ void write_to_file(const std::string& output_string,
   }
 }
 
-int main() {
-  auto graph = Graph();
+constexpr int kInputSize = 256;
 
-  for (int i = 0; i < kVerticesCount; i++) {
-    graph.add_vertex();
+int handle_depth_input() {
+  std::cout << "Enter depth: ";
+  int depth = 0;
+  while (!(std::cin >> depth) || depth < 0) {
+    std::cout << "Invalid value. Please, try again." << std::endl
+              << "Enter depth: ";
+    std::cin.clear();
+    std::cin.ignore(kInputSize, '\n');
+  }
+  return depth;
+}
+
+int handle_new_vertices_count_input() {
+  std::cout << "Enter new vertices count: ";
+  int new_vertices_count = 0;
+  while (!(std::cin >> new_vertices_count) || new_vertices_count < 0) {
+    std::cout << "Invalid value. Please, try again." << std::endl
+              << "Enter new vertices count: ";
+    std::cin.clear();
+    std::cin.ignore(kInputSize, '\n');
+  }
+  return new_vertices_count;
+}
+
+int handle_graphs_count_input() {
+  std::cout << "Enter graph count: ";
+  int graph_count = 0;
+  while (!(std::cin >> graph_count) || graph_count < 0) {
+    std::cout << "Invalid value. Please, try again." << std::endl
+              << "Enter graph count: ";
+    std::cin.clear();
+    std::cin.ignore(kInputSize, '\n');
+  }
+  return graph_count;
+}
+
+std::string generation_started_string(int num_of_graph,
+                                      uni_course_cpp::Logger& logger) {
+  std::stringstream start_string;
+  start_string << logger.get_current_date_time() << " Graph " << num_of_graph
+               << ", Generation Started\n";
+  return start_string.str();
+}
+
+std::string generation_finished_string(int num_of_graph,
+                                       std::string content,
+                                       uni_course_cpp::Logger& logger) {
+  std::stringstream finish_string;
+  finish_string << logger.get_current_date_time() << " Graph " << num_of_graph
+                << ", Generation Finished " << content << "\n";
+  return finish_string.str();
+}
+
+void prepare_temp_directory() {
+  std::filesystem::create_directory(uni_course_cpp::config::kTempDirectoryPath);
+}
+
+int main() {
+  const int depth = handle_depth_input();
+  const int new_vertices_count = handle_new_vertices_count_input();
+  const int graphs_count = handle_graphs_count_input();
+  prepare_temp_directory();
+
+  auto params =
+      uni_course_cpp::GraphGenerator::Params(depth, new_vertices_count);
+  const auto generator = uni_course_cpp::GraphGenerator(std::move(params));
+  auto& logger = uni_course_cpp::Logger::get_logger();
+
+  for (int i = 0; i < graphs_count; ++i) {
+    logger.log(generation_started_string(i, logger));
+    const auto graph = generator.generate();
+
+    const auto graph_description = uni_course_cpp::printing::print_graph(graph);
+    logger.log(generation_finished_string(i, graph_description, logger));
+
+    const auto graph_json = uni_course_cpp::json::print_graph(graph);
+    write_to_file(graph_json,
+                  std::string{uni_course_cpp::config::kTempDirectoryPath} +
+                      "graph_" + std::to_string(i) + ".json");
   }
 
-  graph.add_edge(0, 1);
-  graph.add_edge(0, 2);
-  graph.add_edge(0, 3);
-  graph.add_edge(1, 4);
-  graph.add_edge(1, 5);
-  graph.add_edge(1, 6);
-  graph.add_edge(2, 7);
-  graph.add_edge(2, 8);
-  graph.add_edge(3, 9);
-  graph.add_edge(4, 10);
-  graph.add_edge(5, 10);
-  graph.add_edge(6, 10);
-  graph.add_edge(7, 11);
-  graph.add_edge(8, 11);
-  graph.add_edge(9, 12);
-  graph.add_edge(10, 13);
-  graph.add_edge(11, 13);
-  graph.add_edge(12, 13);
-
-  const auto graph_json = printing::json::print_graph(graph);
-  std::cout << graph_json << std::endl;
-  write_to_file(graph_json, "graph.json");
+  return 0;
 }
