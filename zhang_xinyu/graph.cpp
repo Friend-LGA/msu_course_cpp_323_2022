@@ -24,8 +24,6 @@ Graph::Edge::Color Graph::define_color(Graph::VertexId from_vertex_id,
         color = Edge::Color::Yellow;
     }else if(to_vertex_depth - from_vertex_depth == 2){
         color = Edge::Color::Red;
-    }else{
-        throw std::runtime_error("Can't define the color");
     }
     
     return color;

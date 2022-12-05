@@ -2,6 +2,6 @@
 #include "graph.hpp"
 #pragma once
 
-namespace printing{
+namespace printing {
 std::string print_edge_color(const Graph::Edge::Color& color);
 }
