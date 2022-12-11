@@ -33,7 +33,7 @@ class GraphGenerator {
     explicit Params(int _depth = 0, int _new_vertexes_num = 0)
         : depth(_depth), new_vertexes_num(_new_vertexes_num) {}
 
-    Graph::Depth depth;
+    uni_course_cpp::Graph::Depth depth;
     const int new_vertexes_num;
   };
 
@@ -49,8 +49,8 @@ class GraphGenerator {
     uni_course_cpp::Graph graph;
     const float step = 1.0 / params_.depth;
     graph.addVertex();
-    for (Graph::Depth current_depth = 0; current_depth < params_.depth;
-         current_depth++) {
+    for (uni_course_cpp::Graph::Depth current_depth = 0;
+         current_depth < params_.depth; current_depth++) {
       bool vertexes_generated = false;
       for (const auto& vertex_id : graph.vertexIdsAtLayer(current_depth)) {
         for (int j = 0; j < params_.new_vertexes_num; j++) {
@@ -96,4 +96,5 @@ class GraphGenerator {
                                      2)));  // fin vertex from next next layer
     }
   }
-} const Params params_ = Params();
+  const GraphGenerator::Params params_ = Params();
+};
