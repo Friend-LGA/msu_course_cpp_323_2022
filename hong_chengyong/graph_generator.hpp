@@ -97,5 +97,3 @@ class GraphGenerator {
     }
   }
 } const Params params_ = Params();
-}
-;
