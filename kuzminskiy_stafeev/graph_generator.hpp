@@ -1,10 +1,5 @@
 #pragma once
-#include <functional>
-#include <list>
-#include <memory>
 #include <mutex>
-#include <optional>
-#include <thread>
 #include "graph.hpp"
 #include "interfaces/i_worker.hpp"
 
