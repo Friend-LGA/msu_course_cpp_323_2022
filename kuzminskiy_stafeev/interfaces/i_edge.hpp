@@ -7,8 +7,8 @@ using EdgeId = int;
 enum class EdgeColor { Grey, Green, Blue, Yellow, Red };
 
 struct IEdge {
-public:
-  virtual ~IEdge() {};
+ public:
+  virtual ~IEdge(){};
 
   virtual EdgeId id() const = 0;
   virtual VertexId from_vertex_id() const = 0;

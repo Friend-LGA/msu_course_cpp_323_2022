@@ -20,3 +20,4 @@ clean:
 clang:
 	clang-format -i *.cpp --style=Chromium
 	clang-format -i *.hpp --style=Chromium
+	clang-format -i interfaces/* --style=Chromium
