@@ -27,9 +27,9 @@ std::string print_edge(const IEdge& edge) {
 
 std::string print_graph(const IGraph& graph) {
   std::string graph_string = "{\n  \"vertices\": [\n";
-  /*for (const auto &[vertex_id, vertex] : graph.get_vertices()) {
+  for (const auto& [vertex_id, vertex] : graph.get_vertices()) {
     graph_string += "    {" + print_vertex(*vertex, graph) + "},\n";
-  }*/
+  }
   graph_string.erase(graph_string.length() - 2, graph_string.length());
   graph_string += "\n  ],\n  \"edges\": [\n";
   for (const auto& [edge_id, edge] : graph.get_edges()) {

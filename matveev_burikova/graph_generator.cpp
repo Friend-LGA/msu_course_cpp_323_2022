@@ -26,7 +26,7 @@ constexpr float kRedEdgeGenerationProbability = 1.0 / 3;
 using JobCallback = std::function<void()>;
 
 const std::vector<uni_course_cpp::VertexId> get_unconnected_vertex_ids(
-    Graph* graph,
+    IGraph* graph,
     uni_course_cpp::VertexId vertex_id,
     const std::vector<uni_course_cpp::VertexId>& vertex_ids_on_depth) {
   auto unconnected_vertex_ids = vertex_ids_on_depth;
@@ -54,7 +54,7 @@ uni_course_cpp::VertexId get_random_vertex_id(
   return vertex_ids_list[distrib(gen)];
 }
 
-void generate_green_edges(Graph& graph, std::mutex& graph_mutex) {
+void generate_green_edges(IGraph& graph, std::mutex& graph_mutex) {
   const auto try_generate_green_edge =
       [&graph, &graph_mutex](
           const std::pair<uni_course_cpp::VertexId, IVertex*>& vertex_pair) {
@@ -67,7 +67,7 @@ void generate_green_edges(Graph& graph, std::mutex& graph_mutex) {
                 try_generate_green_edge);
 }
 
-void generate_yellow_edges(Graph& graph, std::mutex& graph_mutex) {
+void generate_yellow_edges(IGraph& graph, std::mutex& graph_mutex) {
   const uni_course_cpp::GraphDepth depth = graph.depth();
   const float step = 1.0 / (depth - 2);
   for (uni_course_cpp::GraphDepth current_depth = uni_course_cpp::kInitialDepth;
@@ -96,7 +96,7 @@ void generate_yellow_edges(Graph& graph, std::mutex& graph_mutex) {
   }
 }
 
-void generate_red_edges(Graph& graph, std::mutex& graph_mutex) {
+void generate_red_edges(IGraph& graph, std::mutex& graph_mutex) {
   const uni_course_cpp::GraphDepth depth = graph.depth();
 
   for (uni_course_cpp::GraphDepth current_depth = uni_course_cpp::kInitialDepth;
@@ -129,18 +129,18 @@ JobCallback get_job(std::list<JobCallback>& jobs) {
 }
 
 uni_course_cpp::VertexId safe_add_connected_vertex(
-    Graph& graph,
+    IGraph& graph,
     uni_course_cpp::VertexId from_vertex_id,
     std::mutex& graph_mutex) {
   const std::lock_guard<std::mutex> guard(graph_mutex);
   const auto to_vertex_id = graph.add_vertex();
-  // graph.add_edge(from_vertex_id, to_vertex_id);
+  graph.add_edge(from_vertex_id, to_vertex_id);
   return to_vertex_id;
 }
 }  // namespace
 
 namespace uni_course_cpp {
-void GraphGenerator::generate_grey_branch(Graph& graph,
+void GraphGenerator::generate_grey_branch(IGraph& graph,
                                           std::mutex& graph_mutex,
                                           VertexId from_vertex_id,
                                           GraphDepth current_depth) const {
@@ -159,7 +159,7 @@ void GraphGenerator::generate_grey_branch(Graph& graph,
   }
 }
 
-void GraphGenerator::generate_grey_edges(Graph& graph,
+void GraphGenerator::generate_grey_edges(IGraph& graph,
                                          VertexId base_vertex_id) const {
   std::mutex graph_mutex, jobs_mutex;
   std::atomic<bool> should_terminate = false;
@@ -223,7 +223,7 @@ std::unique_ptr<IGraph> GraphGenerator::generate() const {
     return std::make_unique<Graph>(std::move(graph));
   generate_grey_edges(graph, base_vertex_id);
 
-  /*std::thread green_thread(generate_green_edges, std::ref(graph),
+  std::thread green_thread(generate_green_edges, std::ref(graph),
                            std::ref(graph_mutex));
   std::thread yellow_thread(&generate_yellow_edges, std::ref(graph),
                             std::ref(graph_mutex));
@@ -232,7 +232,7 @@ std::unique_ptr<IGraph> GraphGenerator::generate() const {
 
   green_thread.join();
   yellow_thread.join();
-  red_thread.join();*/
+  red_thread.join();
 
   return std::make_unique<Graph>(std::move(graph));
 }

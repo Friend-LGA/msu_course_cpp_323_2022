@@ -28,9 +28,9 @@ class GraphGenerator {
  private:
   Params params_ = Params(0, 0);
 
-  void generate_grey_edges(Graph& graph, VertexId base_vertex_id) const;
+  void generate_grey_edges(IGraph& graph, VertexId base_vertex_id) const;
 
-  void generate_grey_branch(Graph& graph,
+  void generate_grey_branch(IGraph& graph,
                             std::mutex& graph_mutex,
                             VertexId from_vertex_id,
                             GraphDepth current_depth) const;

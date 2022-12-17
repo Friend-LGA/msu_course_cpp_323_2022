@@ -9,8 +9,6 @@
 
 namespace uni_course_cpp {
 
-// using GraphDepth = int;
-
 class IGraph {
  public:
   virtual ~IGraph(){};

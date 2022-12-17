@@ -4,6 +4,7 @@
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
 #include "graph_printing.hpp"
+#include "interfaces/i_graph.hpp"
 #include "logger.hpp"
 
 #include <filesystem>

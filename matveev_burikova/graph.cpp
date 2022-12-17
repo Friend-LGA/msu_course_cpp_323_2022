@@ -4,20 +4,13 @@
 
 #include <cassert>
 
-namespace {
-
-using Vertex = uni_course_cpp::Graph::Vertex;
-
-}
-
 namespace uni_course_cpp {
-
-Vertex::Vertex(VertexId id) : id_(id), depth(kInitialDepth) {}
 
 VertexId Graph::add_vertex() {
   const VertexId new_vertex_id = generate_vertex_id();
   adjacency_list_[new_vertex_id] = {};
-  vertices_.emplace(new_vertex_id, (IVertex*)(&Vertex(new_vertex_id)));
+  auto new_vertex = new Vertex(new_vertex_id);
+  vertices_.emplace(new_vertex_id, new_vertex);
   vertices_on_depth_[kInitialDepth].emplace_back(new_vertex_id);
   return new_vertex_id;
 }
@@ -57,8 +50,8 @@ void Graph::add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
   }
   const EdgeId new_edge_id = generate_edge_id();
   const EdgeColor color = get_new_edge_color(from_vertex_id, to_vertex_id);
-  edges_.emplace(new_edge_id, (IEdge*)(&Edge(new_edge_id, from_vertex_id,
-                                             to_vertex_id, color)));
+  auto new_edge = new Edge(new_edge_id, from_vertex_id, to_vertex_id, color);
+  edges_.emplace(new_edge_id, new_edge);
   adjacency_list_[from_vertex_id].emplace_back(new_edge_id);
   if (from_vertex_id != to_vertex_id) {
     adjacency_list_[to_vertex_id].emplace_back(new_edge_id);

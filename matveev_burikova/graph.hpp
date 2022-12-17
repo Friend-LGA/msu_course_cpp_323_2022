@@ -10,20 +10,11 @@
 #include <vector>
 
 namespace uni_course_cpp {
+
+static constexpr GraphDepth kInitialDepth = 1;
+
 class Graph : public IGraph {
  public:
-  struct Vertex : public IVertex {
-   public:
-    explicit Vertex(VertexId id);
-    VertexId id() const { return id_; }
-    GraphDepth depth;
-    GraphDepth get_depth() const { return depth; }
-    void set_depth(GraphDepth new_depth) { depth = new_depth; }
-
-   private:
-    VertexId id_;
-  };
-
   VertexId add_vertex();
 
   EdgeColor get_new_edge_color(VertexId from_vertex_id, VertexId to_vertex_id);
@@ -76,6 +67,20 @@ class Graph : public IGraph {
     VertexId to_vertex_id_ = 0;
     EdgeColor color_ = EdgeColor::Grey;
   };
+
+  struct Vertex : public IVertex {
+   public:
+    // explicit Vertex(VertexId id);
+    explicit Vertex(VertexId id) : id_(id), depth(kInitialDepth) {}
+    VertexId id() const { return id_; }
+    GraphDepth depth;
+    GraphDepth get_depth() const { return depth; }
+    void set_depth(GraphDepth new_depth) { depth = new_depth; }
+
+   private:
+    VertexId id_;
+  };
+
   std::unordered_map<VertexId, IVertex*> vertices_;
   std::unordered_map<EdgeId, IEdge*> edges_;
   std::unordered_map<VertexId, std::vector<EdgeId>> adjacency_list_;
@@ -89,7 +94,5 @@ class Graph : public IGraph {
 
   void set_vertex_depth(VertexId vertex_id, GraphDepth new_depth);
 };
-
-static constexpr GraphDepth kInitialDepth = 1;
 
 }  // namespace uni_course_cpp
