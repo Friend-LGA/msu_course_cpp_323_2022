@@ -16,10 +16,12 @@ using Graph = uni_course_cpp::Graph;
 using GraphGenerator = uni_course_cpp::GraphGenerator;
 using Logger = uni_course_cpp::Logger;
 using GraphGenerationController = uni_course_cpp::GraphGenerationController;
+using GraphDepth = uni_course_cpp::GraphDepth;
+using IGraph = uni_course_cpp::IGraph;
 
-Graph::Depth handle_depth_input() {
+GraphDepth handle_depth_input() {
   std::string input_string;
-  Graph::Depth depth_tmp;
+  GraphDepth depth_tmp;
   bool is_alpha_flag = false;
   while (true) {
     std::cout << "Enter depth: ";
@@ -68,9 +70,9 @@ int handle_new_vertices_count_input() {
   return new_vertices_count_tmp;
 }
 
-Graph::Depth handle_graphs_count_input() {
+GraphDepth handle_graphs_count_input() {
   std::string input_string;
-  Graph::Depth graphs_count_tmp;
+  GraphDepth graphs_count_tmp;
   bool is_alpha_flag = false;
   while (true) {
     std::cout << "Enter graphs count: ";
@@ -148,27 +150,28 @@ void prepare_temp_directory() {
         uni_course_cpp::config::kTempDirectoryPath);
 }
 
-std::vector<Graph> generate_graphs(GraphGenerator::Params&& params,
-                                   int graphs_count,
-                                   int threads_count) {
+std::vector<std::unique_ptr<IGraph>> generate_graphs(
+    GraphGenerator::Params&& params,
+    int graphs_count,
+    int threads_count) {
   auto generation_controller =
       GraphGenerationController(threads_count, graphs_count, std::move(params));
 
   auto& logger = Logger::get_logger();
 
-  auto graphs = std::vector<Graph>();
+  auto graphs = std::vector<std::unique_ptr<IGraph>>();
   graphs.reserve(graphs_count);
 
   generation_controller.generate(
       [&logger](int index) { logger.log(generation_started_string(index)); },
-      [&logger, &graphs](int index, Graph&& graph) {
-        graphs.push_back(graph);
+      [&logger, &graphs](int index, std::unique_ptr<IGraph> graph) {
         const auto graph_description =
-            uni_course_cpp::printing::print_graph(graph);
+            uni_course_cpp::printing::print_graph(*graph);
         logger.log(generation_finished_string(index, graph_description));
         const auto graph_json =
-            uni_course_cpp::printing::json::print_graph(graph);
+            uni_course_cpp::printing::json::print_graph(*graph);
         write_to_file(graph_json, "graph_" + std::to_string(index) + ".json");
+        graphs.push_back(std::move(graph));
       });
 
   return graphs;

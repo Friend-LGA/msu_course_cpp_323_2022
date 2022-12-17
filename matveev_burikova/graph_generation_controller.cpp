@@ -19,7 +19,7 @@ GraphGenerationController::GraphGenerationController(
       graph_generator_(std::move(graph_generator_params)) {
   waiting_jobs_count_ = graphs_count_;
   std::mutex jobs_mutex;
-  const Worker::GetJobCallback get_job_callback =
+  const GetJobCallback get_job_callback =
       [this, &jobs_mutex]() -> std::optional<JobCallback> {
     const std::lock_guard<std::mutex> guard(jobs_mutex);
     if (!jobs_.empty()) {
@@ -27,11 +27,13 @@ GraphGenerationController::GraphGenerationController(
     }
     return std::nullopt;
   };
-  for (int i = 0; i < threads_count_; ++i)
-    workers_.emplace_back(get_job_callback);
+  for (int i = 0; i < threads_count_; ++i) {
+    const auto new_worker = new Worker(get_job_callback);
+    workers_.push_back(new_worker);
+  }
 }
 
-GraphGenerationController::JobCallback GraphGenerationController::get_job() {
+JobCallback GraphGenerationController::get_job() {
   assert(!jobs_.empty());
   const auto job = jobs_.front();
   jobs_.pop_front();
@@ -66,12 +68,12 @@ void GraphGenerationController::generate(
   }
 
   for (auto& worker : workers_)
-    worker.start();
+    worker->start();
 
   while (waiting_jobs_count_ > 0) {
   }
   for (auto& worker : workers_)
-    worker.stop();
+    worker->stop();
 }
 void GraphGenerationController::Worker::start() {
   assert(state_ == State::Idle);
