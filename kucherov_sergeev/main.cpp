@@ -159,10 +159,10 @@ std::vector<std::unique_ptr<IGraph>> generate_graphs(
       [&logger, &graphs](int index, std::unique_ptr<IGraph> graph) {
         graphs.push_back(std::move(graph));
         const auto graph_description =
-            uni_course_cpp::printing::print_graph(*graph);
+            uni_course_cpp::printing::print_graph(*graphs.back());
         logger.log(generation_finished_string(index, graph_description));
         const auto graph_json =
-            uni_course_cpp::printing::json::print_graph(*graph);
+            uni_course_cpp::printing::json::print_graph(*graphs.back());
         write_to_file(graph_json, "graph_" + std::to_string(index) + ".json");
       });
 
