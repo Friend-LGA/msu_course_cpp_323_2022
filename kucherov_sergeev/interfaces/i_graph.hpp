@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "i_edge.hpp"
 #include "i_vertex.hpp"
 
