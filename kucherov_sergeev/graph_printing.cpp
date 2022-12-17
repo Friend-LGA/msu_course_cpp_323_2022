@@ -1,6 +1,7 @@
 
 #include <array>
 #include <map>
+#include <vector>
 
 #include "graph_printing.hpp"
 
