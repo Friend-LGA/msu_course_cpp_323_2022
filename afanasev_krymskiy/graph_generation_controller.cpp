@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "graph_generation_controller.hpp"
+#include "interfaces/i_worker.hpp"
 
 namespace uni_course_cpp {
 GraphGenerationController::GraphGenerationController(

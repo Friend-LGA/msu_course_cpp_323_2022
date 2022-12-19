@@ -1,30 +1,30 @@
-#include "graph_printing.hpp"
 #include <array>
 #include <string>
+
 #include "graph.hpp"
+#include "graph_printing.hpp"
+#include "interfaces/i_graph.hpp"
 
 namespace {
-constexpr std::array<uni_course_cpp::Graph::Edge::Color, 4> kColors = {
-    uni_course_cpp::Graph::Edge::Color::Grey,
-    uni_course_cpp::Graph::Edge::Color::Green,
-    uni_course_cpp::Graph::Edge::Color::Yellow,
-    uni_course_cpp::Graph::Edge::Color::Red};
+constexpr std::array<uni_course_cpp::EdgeColor, 4> kColors = {
+    uni_course_cpp::EdgeColor::Grey, uni_course_cpp::EdgeColor::Green,
+    uni_course_cpp::EdgeColor::Yellow, uni_course_cpp::EdgeColor::Red};
 }
 
 namespace uni_course_cpp {
-std::string printing::print_edge_color(Graph::Edge::Color color) {
+std::string printing::print_edge_color(EdgeColor color) {
   switch (color) {
-    case Graph::Edge::Color::Grey:
+    case EdgeColor::Grey:
       return "grey";
-    case Graph::Edge::Color::Yellow:
+    case EdgeColor::Yellow:
       return "yellow";
-    case Graph::Edge::Color::Red:
+    case EdgeColor::Red:
       return "red";
-    case Graph::Edge::Color::Green:
+    case EdgeColor::Green:
       return "green";
   }
 }
-std::string printing::print_graph(const Graph& graph) {
+std::string printing::print_graph(const IGraph& graph) {
   std::string result = "{\n";
 
   result += "  depth: " + std::to_string(graph.depth()) + ",\n";
