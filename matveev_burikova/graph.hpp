@@ -15,35 +15,39 @@ static constexpr GraphDepth kInitialDepth = 1;
 
 class Graph : public IGraph {
  public:
-  VertexId add_vertex();
+  VertexId add_vertex() override;
 
-  EdgeColor get_new_edge_color(VertexId from_vertex_id, VertexId to_vertex_id);
+  EdgeColor get_new_edge_color(VertexId from_vertex_id,
+                               VertexId to_vertex_id) override;
 
-  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id);
+  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) override;
 
-  GraphDepth depth() const { return vertices_on_depth_.size(); }
+  GraphDepth depth() const override { return vertices_on_depth_.size(); }
 
-  GraphDepth get_vertex_depth(VertexId vertex_id) const {
+  GraphDepth get_vertex_depth(VertexId vertex_id) const override {
     return vertices_.at(vertex_id)->get_depth();
   }
 
-  const std::unordered_map<VertexId, IVertex*>& get_vertices() const {
+  const std::unordered_map<VertexId, IVertex*>& get_vertices() const override {
     return vertices_;
   }
 
-  const std::unordered_map<EdgeId, IEdge*>& get_edges() const { return edges_; }
+  const std::unordered_map<EdgeId, IEdge*>& get_edges() const override {
+    return edges_;
+  }
 
-  const std::vector<EdgeId>& get_connected_edge_ids(VertexId vertex_id) const {
+  const std::vector<EdgeId>& get_connected_edge_ids(
+      VertexId vertex_id) const override {
     return adjacency_list_.at(vertex_id);
   }
 
   const std::vector<VertexId>& get_vertex_ids_on_depth(
-      GraphDepth asked_depth) const;
+      GraphDepth asked_depth) const override;
 
-  bool has_vertex(VertexId vertex_id) const {
+  bool has_vertex(VertexId vertex_id) const override {
     return vertices_.find(vertex_id) != vertices_.end();
   }
-  bool has_edge(VertexId from_vertex_id, VertexId to_vertex_id) const;
+  bool has_edge(VertexId from_vertex_id, VertexId to_vertex_id) const override;
 
  private:
   struct Edge : public IEdge {
@@ -56,10 +60,10 @@ class Graph : public IGraph {
           from_vertex_id_(from_vertex_id),
           to_vertex_id_(to_vertex_id),
           color_(color) {}
-    EdgeId id() const { return id_; }
-    VertexId from_vertex_id() const { return from_vertex_id_; }
-    VertexId to_vertex_id() const { return to_vertex_id_; }
-    EdgeColor color() const { return color_; }
+    EdgeId id() const override { return id_; }
+    VertexId from_vertex_id() const override { return from_vertex_id_; }
+    VertexId to_vertex_id() const override { return to_vertex_id_; }
+    EdgeColor color() const override { return color_; }
 
    private:
     EdgeId id_ = 0;
@@ -70,12 +74,11 @@ class Graph : public IGraph {
 
   struct Vertex : public IVertex {
    public:
-    // explicit Vertex(VertexId id);
     explicit Vertex(VertexId id) : id_(id), depth(kInitialDepth) {}
-    VertexId id() const { return id_; }
+    VertexId id() const override { return id_; }
     GraphDepth depth;
-    GraphDepth get_depth() const { return depth; }
-    void set_depth(GraphDepth new_depth) { depth = new_depth; }
+    GraphDepth get_depth() const override { return depth; }
+    void set_depth(GraphDepth new_depth) override { depth = new_depth; }
 
    private:
     VertexId id_;

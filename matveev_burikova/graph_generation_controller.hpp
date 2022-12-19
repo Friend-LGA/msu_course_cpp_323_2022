@@ -32,8 +32,8 @@ class GraphGenerationController {
 
     ~Worker();
 
-    void start();
-    void stop();
+    void start() override;
+    void stop() override;
 
    private:
     enum class State { Idle, Working, ShouldTerminate };
