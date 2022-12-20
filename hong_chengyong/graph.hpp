@@ -37,7 +37,7 @@ struct Edge {
 class Graph {
  public:
   using Depth = int;
-  const kStart = 0;
+  const int kStart = 0;
   bool hasVertex(const VertexId& vertex_id) const {
     for (const auto& vertex : vertices_) {
       if (vertex.id == vertex_id) {
@@ -155,12 +155,12 @@ class Graph {
                1)  // if the interval between vertices = 1
     {
       return Edge::Color::Yellow;
-    } else if (std::abs(vertexDepth(to_vertex_id) -
-                        vertexDepth(from_vertex_id)) ==
-               2)  // if the interval between vertices = 2
-    {
+    } else  // if (std::abs(vertexDepth(to_vertex_id) -
+            //             vertexDepth(from_vertex_id)) ==
+            //   2)  // if the interval between vertices = 2
+      // {
       return Edge::Color::Red;
-    }
+    // }
   }
   void grayEdgeInitialization(const VertexId& from_vertex_id,
                               const VertexId& to_vertex_id) {
