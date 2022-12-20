@@ -10,6 +10,8 @@
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
+#include "graph_traversal_controller.hpp"
+#include "graph_traverser.hpp"
 #include "interfaces/i_graph.hpp"
 #include "logger.hpp"
 #include "printing.hpp"
@@ -120,6 +122,45 @@ std::vector<std::unique_ptr<uni_course_cpp::IGraph>> generate_graphs(
   return graphs;
 }
 
+std::string write_traverse_start(int graph_num) {
+  std::string res = "";
+  res += ": Graph " + std::to_string(graph_num) + ", Traversal Started";
+  return res;
+}
+
+std::string write_traverse_end(
+    int graph_num,
+    const std::vector<uni_course_cpp::GraphTraverser::GraphPath>& paths) {
+  std::string res = "";
+  res += ": Graph " + std::to_string(graph_num) +
+         ", Traversal Finished, Paths: [\n";
+  for (const auto& path : paths) {
+    res += "  ";
+    res += uni_course_cpp::printing::print_path(path);
+    res += ",\n";
+  }
+  if (paths.size()) {
+    res.pop_back();
+    res.pop_back();
+  }
+  res += "\n]\n";
+  return res;
+}
+
+void traverse_graphs(
+    const std::vector<std::unique_ptr<uni_course_cpp::IGraph>>& graphs,
+    const int threads_count) {
+  auto& logger = uni_course_cpp::Logger::get_instance();
+  auto traversal_controller =
+      uni_course_cpp::GraphTraversalController(threads_count, graphs);
+
+  traversal_controller.traverse_graphs(
+      [&logger](int index) { logger.log(write_traverse_start(index)); },
+      [&logger](int index,
+                const std::vector<uni_course_cpp::GraphTraverser::GraphPath>&
+                    pathes) { logger.log(write_traverse_end(index, pathes)); });
+}
+
 }  // namespace
 
 int main() {
@@ -133,5 +174,7 @@ int main() {
 
   const auto graphs =
       generate_graphs(std::move(params), graphs_count, threads_count);
+
+  traverse_graphs(std::move(graphs), threads_count);
   return 0;
 }

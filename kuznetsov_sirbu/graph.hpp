@@ -87,6 +87,12 @@ class Graph : public IGraph {
 
   Depth depth() const override { return depth_to_vertices_.size(); }
 
+  std::pair<VertexId, VertexId> get_vertex_ids_from_edge_id(
+      EdgeId edge_id) const override {
+    return {edges_.at(edge_id)->from_vertex_id(),
+            edges_.at(edge_id)->to_vertex_id()};
+  }
+
  private:
   VertexId get_new_vertex_id() { return vertex_id_counter_++; }
   EdgeId get_new_edge_id() { return edge_id_counter_++; }

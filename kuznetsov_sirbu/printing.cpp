@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include "graph_json_printing.hpp"
+#include "graph_traverser.hpp"
 
 namespace uni_course_cpp {
 namespace printing {
@@ -37,6 +38,35 @@ std::string print_graph(const IGraph& graph) {
   graph_string.pop_back();
   graph_string += "}}\n}";
   return graph_string;
+}
+
+std::string print_path(const GraphTraverser::GraphPath& path) {
+  std::string res;
+  res = "{vertices: [";
+  for (const auto& vertex_id : path.vertex_ids()) {
+    res += std::to_string(vertex_id);
+    res += ", ";
+  }
+  if (path.vertex_ids().size()) {
+    res.pop_back();
+    res.pop_back();
+  }
+  res += "], ";
+
+  res += "\"edges\": [ ";
+  for (const auto& edge_id : path.edge_ids()) {
+    res += std::to_string(edge_id);
+    res += ", ";
+  }
+  if (path.edge_ids().size() > 0) {
+    res.pop_back();
+    res.pop_back();
+  }
+  res += " ], distance: ";
+  res += std::to_string(path.distance());
+  res += "}";
+
+  return res;
 }
 
 }  // namespace printing

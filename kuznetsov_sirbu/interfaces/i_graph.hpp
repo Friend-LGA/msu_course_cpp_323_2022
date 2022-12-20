@@ -29,5 +29,7 @@ class IGraph {
   virtual const std::vector<EdgeId>& get_edge_ids_with_color(
       Color color) const = 0;
   virtual Depth depth() const = 0;
+  virtual std::pair<VertexId, VertexId> get_vertex_ids_from_edge_id(
+      EdgeId edge_id) const = 0;
 };
 }  // namespace uni_course_cpp
