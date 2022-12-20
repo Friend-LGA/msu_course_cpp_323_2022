@@ -74,7 +74,8 @@ void generate_yellow_edges(Graph& graph,
 
     std::for_each(
         vertexes.begin(), vertexes.end(),
-        [&graph, &graph_mutex, current_depth, prob](const VertexId from_vertex_id) {
+        [&graph, &graph_mutex, current_depth,
+         prob](const VertexId from_vertex_id) {
           if (check_probability(prob)) {
             const auto unconnected_vertexes_ids = get_unconnected_vertex_ids(
                 graph, from_vertex_id,
