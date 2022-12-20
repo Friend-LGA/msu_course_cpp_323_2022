@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <mutex>
 #include <string>
 
 class Logger {
@@ -15,5 +16,6 @@ class Logger {
   Logger(Logger&& other) = delete;
   void operator=(Logger&& other) = delete;
 
+  std::mutex log_mutex_;
   std::ofstream output_fstream_;
 };
