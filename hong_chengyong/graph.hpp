@@ -1,12 +1,9 @@
-
 #pragma once
 #include <array>
-
 #include <cassert>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
-
 
 namespace uni_course_cpp {
 
@@ -35,43 +32,20 @@ struct Edge {
         from_vertex_id(_from_vertex_id),
         to_vertex_id(_to_vertex_id),
         color(_color) {}
-
-namespace uni_course_cpp {
-using VertexId = int;
-using EdgeId = int;
-
-struct Edge {
-  const EdgeId id;
-  const VertexId from_vertex_id;
-  const VertexId to_vertex_id;
-  Edge(const EdgeId& _id, VertexId from_vertex_id_, VertexId to_vertex_id_)
-      : id(_id), from_vertex_id(from_vertex_id_), to_vertex_id(to_vertex_id_) {}
-};
-
-struct Vertex {
-  const VertexId id;
-  explicit Vertex(const VertexId& _id) : id(_id) {}
-
 };
 
 class Graph {
  public:
-
   using Depth = int;
-  const int kStart = 0;
+  const kStart = 0;
   bool hasVertex(const VertexId& vertex_id) const {
     for (const auto& vertex : vertices_) {
-
-  bool hasVertex(const VertexId& vertex_id) const {
-    for (const auto& vertex : vertexes_) {
-
       if (vertex.id == vertex_id) {
         return true;
       }
     }
     return false;
   }
-
 
   bool hasEdge(const EdgeId& edge_id) const {
     for (const auto& edge : edges_) {
@@ -89,15 +63,6 @@ class Graph {
     if (from_vertex_id == to_vertex_id) {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
         const auto& edge = getEdge(edge_id);
-
-  bool isConnected(const VertexId& from_vertex_id,
-                   const VertexId& to_vertex_id) const {
-    assert(hasVertex(from_vertex_id) && "from Vertex index is out of range");
-    assert(hasVertex(to_vertex_id) && "to Vertex index is out of range");
-    if (from_vertex_id == to_vertex_id) {
-      for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
-        const auto& edge = edges_[edge_id];
-
         if (edge.from_vertex_id == from_vertex_id &&
             edge.to_vertex_id == from_vertex_id) {
           return true;
@@ -105,11 +70,7 @@ class Graph {
       }
     } else {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
-
         const auto& edge = getEdge(edge_id);
-
-        const auto& edge = edges_[edge_id];
-
         if (edge.from_vertex_id == to_vertex_id ||
             edge.to_vertex_id == to_vertex_id) {
           return true;
@@ -118,7 +79,6 @@ class Graph {
     }
     return false;
   }
-
 
   VertexId addVertex() {
     const auto& new_vertex = vertices_.emplace_back(getNewVertexId());
@@ -140,26 +100,11 @@ class Graph {
     const auto& new_edge = edges_.emplace_back(getNewEdgeId(), from_vertex_id,
                                                to_vertex_id, color);
     color_list_[color].push_back(new_edge.id);
-
-  void addVertex() {
-    const auto& new_vertex = vertexes_.emplace_back(getNewVertexId());
-    connection_list_.insert({new_vertex.id, std::vector<EdgeId>()});
-  }
-
-  void addEdge(const VertexId& from_vertex_id, const VertexId& to_vertex_id) {
-    assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
-    assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
-    assert(!isConnected(from_vertex_id, to_vertex_id) &&
-           "These vertexes are already connected");
-    const auto& new_edge =
-        edges_.emplace_back(getNewEdgeId(), from_vertex_id, to_vertex_id);
-
     connection_list_[from_vertex_id].push_back(new_edge.id);
     if (from_vertex_id != to_vertex_id) {
       connection_list_[to_vertex_id].push_back(new_edge.id);
     }
   }
-
 
   const Edge& getEdge(const EdgeId& edge_id) const {
     assert(hasEdge(edge_id) && "Edge id is out of range.");
@@ -210,12 +155,12 @@ class Graph {
                1)  // if the interval between vertices = 1
     {
       return Edge::Color::Yellow;
-    } else  // if (std::abs(vertexDepth(to_vertex_id) -
-            //             vertexDepth(from_vertex_id)) ==
-            //   2)  // if the interval between vertices = 2
-      // {
+    } else if (std::abs(vertexDepth(to_vertex_id) -
+                        vertexDepth(from_vertex_id)) ==
+               2)  // if the interval between vertices = 2
+    {
       return Edge::Color::Red;
-    // }
+    }
   }
   void grayEdgeInitialization(const VertexId& from_vertex_id,
                               const VertexId& to_vertex_id) {
@@ -232,15 +177,5 @@ class Graph {
       }
     }
   }
-
- private:
-  std::vector<Vertex> vertexes_;
-  std::vector<Edge> edges_;
-  VertexId new_vertex_id_ = 0;
-  EdgeId new_edge_id_ = 0;
-  std::unordered_map<VertexId, std::vector<EdgeId>> connection_list_;
-  VertexId getNewVertexId() { return new_vertex_id_++; }
-  EdgeId getNewEdgeId() { return new_edge_id_++; }
-
 };
 }  // namespace uni_course_cpp
