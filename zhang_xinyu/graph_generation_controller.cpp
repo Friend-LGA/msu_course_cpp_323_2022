@@ -77,15 +77,19 @@ void GraphGenerationController::generate(
     jobs_.emplace_back([&gen_started_callback, &gen_finished_callback,
                         &graphs_ready_count, i, &callback_mutex,
                         &graph_generator = graph_generator_]() {
-      {
-        const std::lock_guard<std::mutex> guard(callback_mutex);
-        gen_started_callback(i);
-      }
-      auto graph = graph_generator.generate();
-      {
-        const std::lock_guard<std::mutex> guard(callback_mutex);
-        gen_finished_callback(i, std::move(graph));
-      }
+      callback_mutex.lock();
+      //{
+      // const std::lock_guard<std::mutex> guard(log_mutex);
+      gen_started_callback(i);
+      //}
+      callback_mutex.unlock();
+      std::unique_ptr<IGraph> graph = graph_generator.generate();
+      callback_mutex.lock();
+      //{
+      // const std::lock_guard<std::mutex> guard(log_mutex);
+      gen_finished_callback(i, std::move(graph));
+      //}
+      callback_mutex.unlock();
       graphs_ready_count -= 1;
     });
   }
