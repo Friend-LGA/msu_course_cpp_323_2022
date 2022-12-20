@@ -1,14 +1,14 @@
 #include "graph_json_printing.hpp"
+#include <stdexcept>
 
 namespace uni_course_cpp {
 namespace printing {
 namespace json {
 
-std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
+std::string print_vertex(const IVertex& vertex, const IGraph& graph) {
   std::string result_json_vertex = "{\"id\":";
   result_json_vertex += std::to_string(vertex.id()) + ",";
-  const std::vector<Graph::EdgeId>& edge_ids =
-      graph.connected_edges_ids(vertex.id());
+  const std::vector<EdgeId>& edge_ids = graph.connected_edges_ids(vertex.id());
 
   result_json_vertex += "\"edge_ids\":[";
   for (const auto& id : edge_ids) {
@@ -23,21 +23,21 @@ std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
   return result_json_vertex;
 }
 
-std::string print_edge_color(Graph::Edge::Color edge_color) {
+std::string print_edge_color(Color edge_color) {
   switch (edge_color) {
-    case Graph::Edge::Color::Grey:
+    case Color::Grey:
       return "grey";
-    case Graph::Edge::Color::Red:
+    case Color::Red:
       return "red";
-    case Graph::Edge::Color::Yellow:
+    case Color::Yellow:
       return "yellow";
-    case Graph::Edge::Color::Green:
+    case Color::Green:
       return "green";
   }
   throw std::runtime_error("Failed to determine color");
 }
 
-std::string print_edge(const Graph::Edge& edge) {
+std::string print_edge(const IEdge& edge) {
   std::string result_json_edge =
       "{\"id\":" + std::to_string(edge.id()) + ",\"vertex_ids\":" + "[" +
       std::to_string(edge.from_vertex_id()) + "," +
@@ -47,20 +47,20 @@ std::string print_edge(const Graph::Edge& edge) {
   return result_json_edge;
 }
 
-std::string print_graph(const Graph& graph) {
+std::string print_graph(const IGraph& graph) {
   std::string result = "";
   result += "{\"depth\":" + std::to_string(graph.depth()) + ",";
   result += "\"vertices\":[";
 
   for (const auto& vertex : graph.get_vertices()) {
-    result += print_vertex(vertex, graph) + ",";
+    result += print_vertex(*vertex, graph) + ",";
   }
   if (result.back() == ',')
     result.pop_back();
   result += "],\"edges\":[";
 
   for (const auto& edge : graph.get_edges()) {
-    result += print_edge(edge) + ",";
+    result += print_edge(*edge) + ",";
   }
   if (result.back() == ',')
     result.pop_back();

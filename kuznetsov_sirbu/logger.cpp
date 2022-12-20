@@ -29,6 +29,7 @@ Logger& Logger::get_instance() {
 
 void Logger::log(const std::string& string) {
   const std::string current_time = get_current_date_time();
+  const std::lock_guard<std::mutex> control(log_control_);
   std::cout << current_time << string << '\n';
   log_stream_ << current_time << string;
 }
