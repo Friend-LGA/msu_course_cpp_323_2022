@@ -1,3 +1,5 @@
+#include <atomic>
+#include <cassert>
 #include <functional>
 #include <list>
 #include <mutex>
