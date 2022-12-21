@@ -1,70 +1,80 @@
 #pragma once
+
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
-namespace uni_course_cpp {
-class Graph {
- public:
-  using VertexId = int;
-  using EdgeId = int;
-  using Depth = int;
+#include "interfaces/i_edge.hpp"
+#include "interfaces/i_graph.hpp"
+#include "interfaces/i_vertex.hpp"
 
-  struct Vertex {
+namespace uni_course_cpp {
+class Graph : public IGraph {
+ public:
+  struct Vertex : public IVertex {
    public:
     explicit Vertex(VertexId id) : id_(id) {}
-    VertexId id() const { return id_; }
+    VertexId id() const override { return id_; }
 
    private:
     VertexId id_ = 0;
   };
 
-  struct Edge {
+  struct Edge : public IEdge {
    public:
-    enum class Color { Grey, Green, Yellow, Red };
-
-    Edge(EdgeId id, VertexId from_vertex_id, VertexId to_vertex_id, Color color)
+    Edge(EdgeId id,
+         VertexId from_vertex_id,
+         VertexId to_vertex_id,
+         EdgeColor color)
         : id_(id),
           from_vertex_id_(from_vertex_id),
           to_vertex_id_(to_vertex_id),
           color_(color) {}
 
-    EdgeId id() const { return id_; }
-    VertexId from_vertex_id() const { return from_vertex_id_; }
-    VertexId to_vertex_id() const { return to_vertex_id_; }
-    Color color() const { return color_; }
+    EdgeId id() const override { return id_; }
+    VertexId from_vertex_id() const override { return from_vertex_id_; }
+    VertexId to_vertex_id() const override { return to_vertex_id_; }
+    EdgeColor color() const override { return color_; }
 
    private:
     EdgeId id_ = 0;
     VertexId from_vertex_id_ = 0;
     VertexId to_vertex_id_ = 0;
-    Color color_ = Color::Grey;
+    EdgeColor color_ = EdgeColor::Grey;
   };
 
-  VertexId add_vertex();
+  VertexId add_vertex() override;
 
-  EdgeId add_edge(VertexId, VertexId);
+  EdgeId add_edge(VertexId, VertexId) override;
 
-  const std::vector<EdgeId>& connected_edge_ids(VertexId id) const {
+  const std::vector<EdgeId>& connected_edge_ids(VertexId id) const override {
     return adjacency_list_.at(id);
   }
 
-  const std::unordered_map<VertexId, Vertex>& vertices() const {
+  const std::unordered_map<VertexId, std::unique_ptr<IVertex>>& vertices()
+      const override {
     return vertices_;
   }
 
-  const std::unordered_map<EdgeId, Edge>& edges() const { return edges_; }
+  const std::unordered_map<EdgeId, std::unique_ptr<IEdge>>& edges()
+      const override {
+    return edges_;
+  }
 
-  Depth depth() const;
+  GraphDepth depth() const override;
 
-  Depth vertex_depth(VertexId vertex_id) const { return depths_.at(vertex_id); }
+  GraphDepth vertex_depth(VertexId vertex_id) const override {
+    return depths_.at(vertex_id);
+  }
 
-  const std::vector<VertexId>& vertices_at_depth(Depth depth) const {
+  const std::vector<VertexId>& vertices_at_depth(
+      GraphDepth depth) const override {
     return vertices_at_depth_.at(depth);
   }
 
-  bool has_edge(VertexId, VertexId) const;
+  bool has_edge(VertexId, VertexId) const override;
 
-  const std::vector<EdgeId>& color_edge_ids(Edge::Color color) const;
+  const std::vector<EdgeId>& color_edge_ids(EdgeColor color) const override;
 
  private:
   VertexId current_vertex_id_ = 0;
@@ -78,19 +88,19 @@ class Graph {
     return vertices_.find(vertex_id) != vertices_.end();
   }
 
-  void set_vertex_depth(VertexId, Depth);
+  void set_vertex_depth(VertexId, GraphDepth);
 
-  Edge::Color determine_color(VertexId, VertexId) const;
+  EdgeColor determine_color(VertexId, VertexId) const;
 
-  std::unordered_map<VertexId, Vertex> vertices_;
-  std::unordered_map<EdgeId, Edge> edges_;
+  std::unordered_map<VertexId, std::unique_ptr<IVertex>> vertices_;
+  std::unordered_map<EdgeId, std::unique_ptr<IEdge>> edges_;
   std::unordered_map<VertexId, std::vector<EdgeId>> adjacency_list_;
-  std::unordered_map<VertexId, Depth> depths_;
+  std::unordered_map<VertexId, GraphDepth> depths_;
   std::vector<std::vector<VertexId>> vertices_at_depth_;
-  std::unordered_map<Edge::Color, std::vector<EdgeId>> color_edge_ids_;
+  std::unordered_map<EdgeColor, std::vector<EdgeId>> color_edge_ids_;
 };
 
-constexpr Graph::Depth kYellowEdgeDepth = 1;
-constexpr Graph::Depth kRedEdgeDepth = 2;
-constexpr uni_course_cpp::Graph::Depth kDefaultDepth = 1;
+constexpr GraphDepth kYellowEdgeDepth = 1;
+constexpr GraphDepth kRedEdgeDepth = 2;
+constexpr GraphDepth kDefaultDepth = 1;
 }  // namespace uni_course_cpp

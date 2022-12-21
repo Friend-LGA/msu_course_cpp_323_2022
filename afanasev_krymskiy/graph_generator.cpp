@@ -1,16 +1,21 @@
-#include "graph_generator.hpp"
 #include <algorithm>
 #include <atomic>
 #include <functional>
 #include <list>
+#include <memory>
 #include <mutex>
 #include <optional>
 #include <random>
 #include <thread>
 #include <unordered_map>
 #include <vector>
+
 #include "config.hpp"
 #include "graph.hpp"
+#include "graph_generator.hpp"
+#include "interfaces/i_graph.hpp"
+#include "interfaces/i_vertex.hpp"
+#include "interfaces/i_worker.hpp"
 
 namespace {
 static const int kMaxThreadsCount = std::thread::hardware_concurrency();
@@ -21,19 +26,19 @@ bool check_probability(double probability) {
   return distribution(generator);
 }
 
-uni_course_cpp::Graph::VertexId get_random_vertex_id(
-    const std::vector<uni_course_cpp::Graph::VertexId>& list) {
+uni_course_cpp::VertexId get_random_vertex_id(
+    const std::vector<uni_course_cpp::VertexId>& list) {
   std::random_device device;
   std::mt19937 generator(device());
   std::uniform_int_distribution<> distribution(0, list.size() - 1);
   return list[distribution(generator)];
 }
 
-std::vector<uni_course_cpp::Graph::VertexId> get_unconnected_vertices_ids(
+std::vector<uni_course_cpp::VertexId> get_unconnected_vertices_ids(
     const uni_course_cpp::Graph& graph,
-    uni_course_cpp::Graph::VertexId vertex_id,
-    const std::vector<uni_course_cpp::Graph::VertexId>& vertices_ids) {
-  std::vector<uni_course_cpp::Graph::VertexId> result;
+    uni_course_cpp::VertexId vertex_id,
+    const std::vector<uni_course_cpp::VertexId>& vertices_ids) {
+  std::vector<uni_course_cpp::VertexId> result;
   for (const auto vertex_id_depth_greater : vertices_ids) {
     if (!graph.has_edge(vertex_id, vertex_id_depth_greater)) {
       result.push_back(vertex_id_depth_greater);
@@ -100,10 +105,10 @@ void generate_red_edges(uni_course_cpp::Graph& graph,
 }  // namespace
 
 namespace uni_course_cpp {
-Graph GraphGenerator::generate() const {
+std::unique_ptr<IGraph> GraphGenerator::generate() const {
   auto graph = Graph();
   if (params_.get_depth() == 0)
-    return graph;
+    return std::make_unique<Graph>(std::move(graph));
   generate_grey_edges(graph, graph.add_vertex());
 
   std::mutex mutex_for_graph;
@@ -117,14 +122,14 @@ Graph GraphGenerator::generate() const {
   green_thread.join();
   yellow_thread.join();
   red_thread.join();
-  return graph;
+  return std::make_unique<Graph>(std::move(graph));
 }
 
 void GraphGenerator::generate_grey_branch(
     Graph& graph,
     std::mutex& mutex_for_graph,
-    Graph::VertexId parent_vertex_id,
-    Graph::Depth parent_vertex_depth) const {
+    VertexId parent_vertex_id,
+    GraphDepth parent_vertex_depth) const {
   if (parent_vertex_depth >= params_.get_depth())
     return;
   const float probability =
@@ -145,7 +150,7 @@ void GraphGenerator::generate_grey_branch(
 }
 
 void GraphGenerator::generate_grey_edges(Graph& graph,
-                                         Graph::VertexId root_vertex_id) const {
+                                         VertexId root_vertex_id) const {
   if (params_.get_depth() <= kDefaultDepth)
     return;
 
