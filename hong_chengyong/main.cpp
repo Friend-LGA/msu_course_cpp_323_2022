@@ -17,17 +17,17 @@ int handle_depth_input() {
   return depth;
 }
 
-int handle_new_vertices_count_input() {
-  int new_vertices_num;
-  std::cout << "Enter number of new vertices:" << std::endl;
-  std::cin >> new_vertices_num;
-  while (new_vertices_num < 0) {
-    std::cout << "Number of new vertices must be not negative. Enter number of "
-                 "new vertices again:"
+int handle_new_vertexes_count_input() {
+  int new_vertexes_num;
+  std::cout << "Enter number of new vertexes:" << std::endl;
+  std::cin >> new_vertexes_num;
+  while (new_vertexes_num < 0) {
+    std::cout << "Number of new vertexes must be not negative. Enter number of "
+                 "new vertexes again:"
               << std::endl;
-    std::cin >> new_vertices_num;
+    std::cin >> new_vertexes_num;
   }
-  return new_vertices_num;
+  return new_vertexes_num;
 }
 
 int handle_new_graphs_count_input() {
@@ -94,11 +94,11 @@ std::string print_graph(const uni_course_cpp::Graph& graph, int depth) {
   std::string graph_string;
   graph_string += "\n\"depth\":";
   graph_string += std::to_string(depth);
-  graph_string += "{\n \"vertices\": [\n  ";
-  for (const auto& vertex : graph.vertices()) {
+  graph_string += "{\n \"vertexes\": [\n  ";
+  for (const auto& vertex : graph.vertexes()) {
     graph_string += printVertex(vertex.id, graph);
   }
-  if (graph.vertices().size() > 0) {
+  if (graph.vertexes().size() > 0) {
     graph_string.pop_back();
     graph_string.pop_back();
   }
@@ -118,8 +118,8 @@ std::string print_graph(const uni_course_cpp::Graph& graph, int depth) {
 
 int main() {
   const int depth = handle_depth_input();
-  const int new_vertices_count = handle_new_vertices_count_input();
-  const auto params = GraphGenerator::Params(depth, new_vertices_count);
+  const int new_vertexes_count = handle_new_vertexes_count_input();
+  const auto params = GraphGenerator::Params(depth, new_vertexes_count);
   const auto generator = GraphGenerator(std::move(params));
   const auto graph = generator.generate();
   const auto graphjson = printing::print_graph(graph, depth);

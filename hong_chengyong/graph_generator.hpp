@@ -71,7 +71,7 @@ class GraphGenerator {
     return graph;
   }
   void generateColorEdges(uni_course_cpp::Graph& graph) const {
-    for (const auto& vertex : graph.vertices()) {
+    for (const auto& vertex : graph.vertexes()) {
       const int vertex_depth = graph.vertexDepth(vertex.id);
       if (randomValue(kGreenProbabilty)) {
         graph.addEdge(vertex.id, vertex.id);
