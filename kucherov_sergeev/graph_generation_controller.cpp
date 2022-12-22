@@ -84,7 +84,7 @@ void GraphGenerationController::generate(
         gen_started_callback(i);
       }
 
-      auto graph = graph_generator.generate();
+      std::unique_ptr<IGraph> graph = graph_generator.generate();
 
       {
         const std::lock_guard lock(callback_mutex);

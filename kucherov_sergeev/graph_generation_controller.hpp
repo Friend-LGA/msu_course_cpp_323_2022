@@ -6,14 +6,15 @@
 #include <optional>
 #include <thread>
 
-#include "graph.hpp"
 #include "graph_generator.hpp"
+#include "interfaces/i_worker.hpp"
 
 namespace uni_course_cpp {
 class GraphGenerationController {
  public:
   using GenStartedCallback = std::function<void(int index)>;
-  using GenFinishedCallback = std::function<void(int index, Graph&& graph)>;
+  using GenFinishedCallback =
+      std::function<void(int index, std::unique_ptr<IGraph> graph)>;
 
   GraphGenerationController(int threads_count,
                             int graphs_count,
@@ -23,18 +24,14 @@ class GraphGenerationController {
                 const GenFinishedCallback& gen_finished_callback);
 
  private:
-  using JobCallback = std::function<void()>;
-
-  class Worker {
+  class Worker : public IWorker {
    public:
-    using GetJobCallback = std::function<std::optional<JobCallback>()>;
-
     explicit Worker(const GetJobCallback& get_job_callback)
         : get_job_callback_(get_job_callback){};
 
     ~Worker();
-    void start();
-    void stop();
+    void start() override;
+    void stop() override;
 
    private:
     enum class State { Idle, Working, ShouldTerminate };
