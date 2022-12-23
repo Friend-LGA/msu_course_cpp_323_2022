@@ -6,7 +6,7 @@
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
-#include "graph_logger.hpp"
+#include "logger.hpp"
 #include "graph_printing.hpp"
 #include "interfaces/i_graph.hpp"
 
@@ -92,8 +92,8 @@ int handle_threads_count_input() {
 }
 
 void prepare_temp_directory() {
-  if (!fs::exists(config::kTempDirectoryPath)) {
-    if (!fs::create_directories(config::kTempDirectoryPath)) {
+  if (!fs::exists(uni_course_cpp::config::kTempDirectoryPath)) {
+    if (!fs::create_directories(uni_course_cpp::config::kTempDirectoryPath)) {
       throw std::runtime_error("Temp directory error!");
     }
   }
@@ -119,7 +119,7 @@ std::vector<std::unique_ptr<uni_course_cpp::IGraph>> generate_graphs(
         const auto graph_description = printing::print_graph(*graphs.back());
         logger.log(generation_finished_string(index, graph_description));
         const auto graph_json = printing::json::print_graph(*graphs.back());
-        write_to_file(graph_json, std::string(config::kTempDirectoryPath) +
+        write_to_file(graph_json, std::string(uni_course_cpp::config::kTempDirectoryPath) +
                                       "graph_" + std::to_string(index) +
                                       ".json");
       });
