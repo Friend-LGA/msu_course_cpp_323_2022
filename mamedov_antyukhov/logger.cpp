@@ -30,6 +30,7 @@ Logger::Logger() : log_file_(config::kLogFilePath) {}
 
 void Logger::log(const std::string& string) {
   const std::string current_date_time = get_current_date_time();
+  const std::lock_guard<std::mutex> log_lock(log_mutex_);
   log_file_ << current_date_time << string;
   std::cout << current_date_time << string;
 }

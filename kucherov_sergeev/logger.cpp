@@ -2,6 +2,7 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <stdexcept>
 
@@ -22,8 +23,11 @@ std::string get_current_date_time() {
 namespace uni_course_cpp {
 void Logger::log(const std::string& string) {
   const auto log_string = get_current_date_time() + " " + string;
+
+  const std::lock_guard lock(logger_mutex_);
+
   std::cout << log_string << std::endl;
-  log_file_ << string << std::endl;
+  log_file_ << log_string << std::endl;
 }
 
 Logger& Logger::get_logger() {

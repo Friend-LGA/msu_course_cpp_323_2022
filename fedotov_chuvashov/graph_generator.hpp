@@ -3,7 +3,6 @@
 #include "graph.hpp"
 
 namespace uni_course_cpp {
-
 class GraphGenerator {
  public:
   struct Params {

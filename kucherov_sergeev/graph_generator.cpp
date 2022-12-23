@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <atomic>
 #include <cassert>
+#include <functional>
 #include <list>
+#include <optional>
 #include <random>
 #include <thread>
 
