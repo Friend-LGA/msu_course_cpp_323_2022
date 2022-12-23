@@ -1,9 +1,9 @@
 CC = clang++
 FLAGS = -std=c++17 -Werror -pthread
 
-PROGS.O = graph.o logger.o graph_printing.o graph_generator.o graph_json_printing.o main.o
-PROGS.CPP = graph.cpp logger.cpp graph_printing.cpp graph_generator.cpp graph_json_printing.cpp main.cpp
-PROGS.HPP = graph.hpp logger.hpp graph_printing.hpp graph_generator.hpp graph_json_printing.hpp config.hpp
+PROGS.O = graph.o logger.o graph_printing.o graph_generator.o graph_json_printing.o graph_generation_controller.o main.o
+PROGS.CPP = graph.cpp logger.cpp graph_printing.cpp graph_generator.cpp graph_json_printing.cpp graph_generation_controller.cpp main.cpp
+PROGS.HPP = graph.hpp logger.hpp graph_printing.hpp graph_generator.hpp graph_json_printing.hpp config.hpp graph_generation_controller.hpp
 RES = main
 GRAPH = graph.json
 TEMP = ./temp

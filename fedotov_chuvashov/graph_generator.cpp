@@ -3,12 +3,12 @@
 #include <atomic>
 #include <cassert>
 #include <deque>
+#include <functional>
 #include <optional>
 #include <random>
 #include <thread>
 
 namespace uni_course_cpp {
-
 namespace {
 bool check_probabilty(float probability) {
   std::random_device rd;

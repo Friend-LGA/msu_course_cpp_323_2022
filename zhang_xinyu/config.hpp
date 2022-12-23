@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 
-namespace uni_course_cpp{
 namespace config {
 
 inline constexpr const char* kTempDirectoryPath = "./temp/";
@@ -10,4 +9,3 @@ inline const std::string kLogFilePath =
 std::string(kTempDirectoryPath) + std::string(kLogFilename);
 
 }  // namespace config
-}

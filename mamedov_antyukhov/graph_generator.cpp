@@ -2,7 +2,6 @@
 #include <atomic>
 #include <cassert>
 #include <functional>
-#include <iostream>
 #include <optional>
 #include <queue>
 #include <random>
@@ -209,7 +208,9 @@ void GraphGenerator::generate_grey_edges(Graph& graph,
   should_terminate = true;
 
   for (auto& thread : threads) {
-    thread.join();
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
 }
 

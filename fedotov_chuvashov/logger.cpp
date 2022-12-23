@@ -25,7 +25,9 @@ std::string Logger::get_current_date_time() {
 Logger::Logger() : log_stream_(config::kLogFilePath, std::ofstream::app) {}
 
 void Logger::log(const std::string& string) {
-  log_stream_ << string;
-  std::cout << string;
+  const std::string& current_date_time = get_current_date_time();
+  const std::lock_guard<std::mutex> lock(logger_mutex_);
+  log_stream_ << get_current_date_time() << string;
+  std::cout << get_current_date_time() << string;
 }
 }  // namespace uni_course_cpp

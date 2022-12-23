@@ -6,9 +6,6 @@
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
-#include "logger.hpp"
-#include "graph_printing.hpp"
-#include "interfaces/i_graph.hpp"
 
 namespace fs = std::filesystem;
 
@@ -137,7 +134,5 @@ int main() {
   prepare_temp_directory();
 
   auto params = GraphGenerator::Params(depth, new_vertices_count);
-  const auto graphs =
-      generate_graphs(std::move(params), graphs_count, threads_count);
   return 0;
 }

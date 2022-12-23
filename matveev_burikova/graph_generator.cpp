@@ -4,9 +4,9 @@
 #include <atomic>
 #include <cassert>
 #include <execution>
+#include <list>
 #include <mutex>
 #include <optional>
-#include <queue>
 #include <random>
 #include <thread>
 #include <vector>
@@ -117,10 +117,10 @@ void generate_red_edges(Graph& graph, std::mutex& graph_mutex) {
   }
 }
 
-JobCallback get_job(std::queue<JobCallback>& jobs) {
+JobCallback get_job(std::list<JobCallback>& jobs) {
   assert(!jobs.empty());
-  auto job = jobs.front();
-  jobs.pop();
+  const auto job = jobs.front();
+  jobs.pop_front();
   return job;
 }
 
@@ -158,7 +158,7 @@ void GraphGenerator::generate_grey_edges(Graph& graph,
                                          Graph::VertexId base_vertex_id) const {
   std::mutex graph_mutex, jobs_mutex;
   std::atomic<bool> should_terminate = false;
-  auto jobs = std::queue<JobCallback>();
+  auto jobs = std::list<JobCallback>();
 
   const Graph::Depth params_depth = params_.depth();
   const int new_vertices_count = params_.new_vertices_count();
@@ -169,7 +169,7 @@ void GraphGenerator::generate_grey_edges(Graph& graph,
     const auto job = [this, base_vertex_id, &graph, &graph_mutex]() {
       generate_grey_branch(graph, graph_mutex, base_vertex_id, kInitialDepth);
     };
-    jobs.push(job);
+    jobs.push_back(job);
   }
 
   const auto worker = [&should_terminate, &waiting_jobs_count, &jobs_mutex,
