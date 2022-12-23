@@ -3,10 +3,11 @@
 #include <iostream>
 #include <stdexcept>
 #include "config.hpp"
-#include "graph.hpp"
+#include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
 #include "graph_printing.hpp"
+#include "interfaces/i_graph.hpp"
 #include "logger.hpp"
 
 namespace fs = std::filesystem;
@@ -76,6 +77,20 @@ int handle_graphs_count_input() {
   } while (true);
 }
 
+int handle_threads_count_input() {
+  std::string input;
+  do {
+    std::cout << "Input threads count: ";
+    std::cin >> input;
+    if (is_number(input) && std::stoi(input) >= 1) {
+      return std::stoi(input);
+    }
+
+    std::cout << "Incorrect graphs count!" << std::endl;
+    std::cout << "Input threads count: ";
+  } while (true);
+}
+
 void prepare_temp_directory() {
   if (!fs::exists(uni_course_cpp::config::kTempDirectoryPath)) {
     if (!fs::create_directories(uni_course_cpp::config::kTempDirectoryPath)) {
@@ -84,30 +99,45 @@ void prepare_temp_directory() {
   }
 }
 
+std::vector<std::unique_ptr<uni_course_cpp::IGraph>> generate_graphs(
+    uni_course_cpp::GraphGenerator::Params&& params,
+    int graphs_count,
+    int threads_count) {
+  using namespace uni_course_cpp;
+  auto generation_controller =
+      GraphGenerationController(threads_count, graphs_count, std::move(params));
+
+  auto& logger = Logger::get_logger();
+
+  auto graphs = std::vector<std::unique_ptr<IGraph>>();
+  graphs.reserve(graphs_count);
+
+  generation_controller.generate(
+      [&logger](int index) { logger.log(generation_started_string(index)); },
+      [&logger, &graphs](int index, std::unique_ptr<IGraph> graph) {
+        graphs.push_back(std::move(graph));
+        const auto graph_description = printing::print_graph(*graphs.back());
+        logger.log(generation_finished_string(index, graph_description));
+        const auto graph_json = printing::json::print_graph(*graphs.back());
+        write_to_file(graph_json,
+                      std::string(uni_course_cpp::config::kTempDirectoryPath) +
+                          "graph_" + std::to_string(index) + ".json");
+      });
+
+  return graphs;
+}
+
 int main() {
   using namespace uni_course_cpp;
 
   const int depth = handle_depth_input();
   const int new_vertices_count = handle_new_vertices_count_input();
   const int graphs_count = handle_graphs_count_input();
+  const int threads_count = handle_threads_count_input();
   prepare_temp_directory();
 
   auto params = GraphGenerator::Params(depth, new_vertices_count);
-  const auto generator = GraphGenerator(std::move(params));
-  Logger& logger = Logger::get_logger();
-
-  for (int i = 0; i < graphs_count; i++) {
-    logger.log(generation_started_string(i));
-    const auto graph = generator.generate();
-
-    const auto graph_description = printing::print_graph(graph);
-    logger.log(generation_finished_string(i, graph_description));
-
-    const auto graph_json = printing::json::print_graph(graph);
-    write_to_file(graph_json,
-                  std::string(uni_course_cpp::config::kTempDirectoryPath) +
-                      "graph_" + std::to_string(i) + ".json");
-  }
-
+  const auto graphs =
+      generate_graphs(std::move(params), graphs_count, threads_count);
   return 0;
 }

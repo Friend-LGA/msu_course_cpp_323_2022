@@ -1,32 +1,33 @@
 #include "graph_printing.hpp"
 #include <array>
+#include <iostream>
+#include <stdexcept>
 
 namespace uni_course_cpp {
 
 namespace {
 
-static constexpr std::array<Graph::Edge::Color, 4> edge_colors = {
-    Graph::Edge::Color::Grey, Graph::Edge::Color::Green,
-    Graph::Edge::Color::Yellow, Graph::Edge::Color::Red};
+static constexpr std::array<EdgeColor, 4> edge_colors = {
+    EdgeColor::Grey, EdgeColor::Green, EdgeColor::Yellow, EdgeColor::Red};
 
 }
 
-std::string printing::print_edge_color(const Graph::Edge::Color& color) {
+std::string printing::print_edge_color(const EdgeColor& color) {
   switch (color) {
-    case Graph::Edge::Color::Grey:
+    case EdgeColor::Grey:
       return "grey";
-    case Graph::Edge::Color::Yellow:
+    case EdgeColor::Yellow:
       return "yellow";
-    case Graph::Edge::Color::Red:
+    case EdgeColor::Red:
       return "red";
-    case Graph::Edge::Color::Green:
+    case EdgeColor::Green:
       return "green";
     default:
-      return "No color";
+      throw std::runtime_error("Failed to determine color");
   }
 }
 
-std::string printing::print_graph(const Graph& graph) {
+std::string printing::print_graph(const IGraph& graph) {
   const auto depth = graph.get_graph_depth();
 
   const auto vertices = graph.get_vertexes().size();
@@ -34,7 +35,7 @@ std::string printing::print_graph(const Graph& graph) {
 
   std::string depths_distribution = "";
 
-  for (int i = 1; i < depth + 1; i++) {
+  for (GraphDepth i = 1; i < depth + 1; i++) {
     depths_distribution += std::to_string(graph.vertexes_of_depth(i).size());
 
     if (i != depth) {
