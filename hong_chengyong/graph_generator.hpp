@@ -71,14 +71,50 @@ class GraphGenerator {
     }
     return graph;
   }
+  void generate_green_edges(uni_course_cpp::Graph& graph,
+                            const int& vertex_depth,
+                            const uni_course_cpp::Vertex& vertex) const {
+    if (randomValue(kGreenProbabilty)) {
+      graph.addEdge(vertex.id, vertex.id);
+    }
+  }
+  void generate_yellow_edges(uni_course_cpp::Graph& graph,
+                             const int& vertex_depth,
+                             const uni_course_cpp::Vertex& vertex) const {
+    if (vertex_depth < graph.depth() &&
+        randomValue(getYellowProbability(graph, vertex.id))) {
+      std::vector<uni_course_cpp::VertexId> next_layer;
+      for (const auto& vertex_id : graph.vertexIdsAtLayer(
+               vertex_depth + 1))  // find vertex from next layer
+      {
+        if (!graph.isConnected(vertex.id, vertex_id)) {
+          next_layer.push_back(vertex_id);
+        }
+      }
+      if (next_layer.size() != 0)
+        graph.addEdge(vertex.id, getRandomVertexId(next_layer));
+    }
+  }
+  void generate_red_edges(uni_course_cpp::Graph& graph,
+                          const int& vertex_depth,
+                          const uni_course_cpp::Vertex& vertex) const {
+    if (randomValue(kRedProbabilty) &&
+        vertex_depth < (graph.depth() - 1))  // depth(N-1){
+      graph.addEdge(vertex.id,
+                    getRandomVertexId(graph.vertexIdsAtLayer(
+                        vertex_depth + 2)));  // fin vertex from next next layer
+  }
+
   void generateColorEdges(uni_course_cpp::Graph& graph) const {
     for (const auto& vertex : graph.vertexes()) {
       const int vertex_depth = graph.vertexDepth(vertex.id);
-
-      if (randomValue(kGreenProbabilty)) {
+      generate_green_edges(graph, vertex_depth, vertex);
+      generate_yellow_edges(graph, vertex_depth, vertex);
+      generate_red_edges(graph, vertex_depth, vertex);
+      /*if (randomValue(kGreenProbabilty)) {
         graph.addEdge(vertex.id, vertex.id);
-      }
-      if (vertex_depth < graph.depth() &&
+      }*/
+      /*if (vertex_depth < graph.depth() &&
           randomValue(getYellowProbability(graph, vertex.id))) {
         std::vector<uni_course_cpp::VertexId> next_layer;
         for (const auto& vertex_id : graph.vertexIdsAtLayer(
@@ -90,12 +126,13 @@ class GraphGenerator {
         }
         if (next_layer.size() != 0)
           graph.addEdge(vertex.id, getRandomVertexId(next_layer));
-      }
-      if (randomValue(kRedProbabilty) &&
+      }*/
+      /*if (randomValue(kRedProbabilty) &&
           vertex_depth < (graph.depth() - 1))  // depth(N-1){
         graph.addEdge(vertex.id, getRandomVertexId(graph.vertexIdsAtLayer(
                                      vertex_depth +
-                                     2)));  // fin vertex from next next layer
+                                     2)));  // fin vertex from next next
+        layer*/
     }
   }
   const Params params_ = Params();
