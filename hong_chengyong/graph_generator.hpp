@@ -3,7 +3,7 @@
 #include <random>
 #include <vector>
 #include "graph.hpp"
-namespace uni_course_cpp{
+namespace uni_course_cpp {
 constexpr float kGreenProbabilty = 0.1, kRedProbabilty = 0.33;
 float getGreyProbability(float step, int depth) {
   return 1.0 - step * depth;
@@ -20,7 +20,8 @@ bool randomValue(float probability) {
   std::bernoulli_distribution distribution(probability);
   return distribution(gen);
 }
-VertexId getRandomVertexId(const std::vector<uni_course_cpp::VertexId>& vertex_ids) {
+VertexId getRandomVertexId(
+    const std::vector<uni_course_cpp::VertexId>& vertex_ids) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> random_number(0, vertex_ids.size() - 1);
@@ -36,8 +37,8 @@ class GraphGenerator {
     Graph::Depth depth;
     const int new_vertexes_num;
   };
-explicit GraphGenerator(Params&& params) : params_(std::move(params)) {}
- 
+  explicit GraphGenerator(Params&& params) : params_(std::move(params)) {}
+
   uni_course_cpp::Graph generate() const {
     uni_course_cpp::Graph graph = generateMainBody();
     graph.addVertex();
@@ -97,6 +98,6 @@ explicit GraphGenerator(Params&& params) : params_(std::move(params)) {}
     }
   }
 
-const Params params_ = Params();
+  const Params params_ = Params();
 };
-}
+}  // namespace uni_course_cpp

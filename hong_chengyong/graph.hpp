@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace uni_course_cpp{
+namespace uni_course_cpp {
 
 using VertexId = int;
 using EdgeId = int;
@@ -144,8 +144,7 @@ class Graph {
   VertexId getNewVertexId() { return new_vertex_id_++; }
   EdgeId getNewEdgeId() { return new_edge_id_++; }
   Edge::Color calculateEdgeColor(const VertexId& from_vertex_id,
-                                 const VertexId& to_vertex_id) const
- {
+                                 const VertexId& to_vertex_id) const {
     if (connection_list_.at(to_vertex_id).size() == 0 ||
         connection_list_.at(from_vertex_id).size() == 0) {
       return Edge::Color::Gray;
@@ -159,7 +158,7 @@ class Graph {
     } else if (std::abs(vertexDepth(to_vertex_id) -
                         vertexDepth(from_vertex_id)) ==
                2)  // if the interval between vertexes = 2
-               {
+    {
       return Edge::Color::Red;
     }
     throw std::runtime_error("Failed to detirmine color");
@@ -180,4 +179,4 @@ class Graph {
     }
   }
 };
-}// namespace uni_course_cpp
+}  // namespace uni_course_cpp

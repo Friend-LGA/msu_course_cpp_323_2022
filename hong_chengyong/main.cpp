@@ -119,7 +119,8 @@ std::string print_graph(const uni_course_cpp::Graph& graph, int depth) {
 int main() {
   const int depth = handle_depth_input();
   const int new_vertexes_count = handle_new_vertexes_count_input();
-  auto params =  uni_course_cpp::GraphGenerator::Params(depth,new_vertexes_count );
+  auto params =
+      uni_course_cpp::GraphGenerator::Params(depth, new_vertexes_count);
   const auto generator = uni_course_cpp::GraphGenerator(std::move(params));
   const auto graph = generator.generate();
   const auto graphjson = printing::print_graph(graph, depth);
