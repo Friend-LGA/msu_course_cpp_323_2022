@@ -6,6 +6,9 @@
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
+#include "graph_printing.hpp"
+#include "interfaces/i_graph.hpp"
+#include "logger.hpp"
 
 namespace fs = std::filesystem;
 
@@ -116,9 +119,9 @@ std::vector<std::unique_ptr<uni_course_cpp::IGraph>> generate_graphs(
         const auto graph_description = printing::print_graph(*graphs.back());
         logger.log(generation_finished_string(index, graph_description));
         const auto graph_json = printing::json::print_graph(*graphs.back());
-        write_to_file(graph_json, std::string(uni_course_cpp::config::kTempDirectoryPath) +
-                                      "graph_" + std::to_string(index) +
-                                      ".json");
+        write_to_file(graph_json,
+                      std::string(uni_course_cpp::config::kTempDirectoryPath) +
+                          "graph_" + std::to_string(index) + ".json");
       });
 
   return graphs;
@@ -134,5 +137,7 @@ int main() {
   prepare_temp_directory();
 
   auto params = GraphGenerator::Params(depth, new_vertices_count);
+  const auto graphs =
+      generate_graphs(std::move(params), graphs_count, threads_count);
   return 0;
 }
