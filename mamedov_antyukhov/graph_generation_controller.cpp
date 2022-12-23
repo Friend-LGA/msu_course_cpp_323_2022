@@ -43,8 +43,9 @@ GraphGenerationController::GraphGenerationController(
     : threads_count_(threads_count),
       graphs_count_(graphs_count),
       graph_generator_(GraphGenerator(std::move(graph_generator_params))) {
-  const auto get_job_callback = [&jobs = jobs_, &jobs_mutex = jobs_mutex_]()
-      -> std::optional<GraphGenerationController::JobCallback> {
+  const auto get_job_callback =
+      [&jobs = jobs_,
+       &jobs_mutex = jobs_mutex_]() -> std::optional<JobCallback> {
     const std::lock_guard<std::mutex> jobs_lock(jobs_mutex);
     if (!jobs.empty()) {
       auto job = jobs.front();
@@ -72,7 +73,7 @@ void GraphGenerationController::generate(
         const std::lock_guard<std::mutex> gen_start_lock(gen_mutex);
         gen_started_callback(i);
       }
-      auto graph = graph_generator.generate();
+      std::unique_ptr<IGraph> graph = graph_generator.generate();
       {
         const std::lock_guard<std::mutex> gen_finish_lock(gen_mutex);
         gen_finished_callback(i, std::move(graph));

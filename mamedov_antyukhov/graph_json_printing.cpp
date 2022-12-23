@@ -7,7 +7,7 @@
 namespace uni_course_cpp {
 namespace printing {
 namespace json {
-std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
+std::string print_vertex(const IVertex& vertex, const IGraph& graph) {
   std::stringstream json_string;
   json_string << "\n\t\t{ \"id\":" << vertex.id() << ", \"edge_ids\": [";
   const auto& edge_ids = graph.get_connected_edge_ids(vertex.id());
@@ -24,7 +24,7 @@ std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
   return json_string.str();
 }
 
-std::string print_edge(const Graph::Edge& edge, const Graph& graph) {
+std::string print_edge(const IEdge& edge, const IGraph& graph) {
   std::stringstream json_string;
   json_string << "\n\t\t{ \"id\": " << edge.id() << ", \"vertex_ids\": ["
               << edge.get_first_vertex_id() << ", "
@@ -34,7 +34,7 @@ std::string print_edge(const Graph::Edge& edge, const Graph& graph) {
   return json_string.str();
 }
 
-std::string print_graph(const Graph& graph) {
+std::string print_graph(const IGraph& graph) {
   std::stringstream json_string;
   json_string << "{\n\t\"depth\": " << graph.depth() << ",\n\t\"vertices\": [";
   const auto& vertices = graph.get_vertices();
@@ -46,7 +46,7 @@ std::string print_graph(const Graph& graph) {
       if (!is_first_iteration) {
         json_string << ",";
       }
-      json_string << print_vertex(it->second, graph);
+      json_string << print_vertex(*it->second, graph);
       is_first_iteration = false;
     }
   }
@@ -59,7 +59,7 @@ std::string print_graph(const Graph& graph) {
       if (!is_first_iteration) {
         json_string << ",";
       }
-      json_string << print_edge(it_edges->second, graph);
+      json_string << print_edge(*it_edges->second, graph);
       is_first_iteration = false;
     }
   }

@@ -5,11 +5,11 @@
 #include <sstream>
 #include <string>
 #include "config.hpp"
-#include "graph.hpp"
 #include "graph_generation_controller.hpp"
 #include "graph_generator.hpp"
 #include "graph_json_printing.hpp"
 #include "graph_printing.hpp"
+#include "interfaces/i_graph.hpp"
 #include "logger.hpp"
 
 namespace uni_course_cpp {
@@ -141,29 +141,29 @@ std::string generation_finished_string(int graph_num,
   return finished_string.str();
 }
 
-std::vector<Graph> generate_graphs(GraphGenerator::Params&& params,
-                                   int graphs_count,
-                                   int threads_count) {
+std::vector<std::unique_ptr<IGraph>> generate_graphs(
+    GraphGenerator::Params&& params,
+    int graphs_count,
+    int threads_count) {
   auto generation_controller =
       GraphGenerationController(threads_count, graphs_count, std::move(params));
 
   auto& logger = Logger::get_logger();
 
-  auto graphs = std::vector<Graph>();
+  auto graphs = std::vector<std::unique_ptr<IGraph>>();
   graphs.reserve(graphs_count);
 
   generation_controller.generate(
       [&logger](int index) { logger.log(generation_started_string(index)); },
-      [&logger, &graphs](int index, Graph&& graph) {
-        graphs.push_back(graph);
-        const auto graph_description = printing::print_graph(graph);
+      [&logger, &graphs](int index, std::unique_ptr<IGraph> graph) {
+        graphs.push_back(std::move(graph));
+        const auto graph_description = printing::print_graph(*graphs.back());
         logger.log(generation_finished_string(index, graph_description));
-        const auto graph_json = printing::json::print_graph(graph);
+        const auto graph_json = printing::json::print_graph(*graphs.back());
         write_to_file(graph_json,
                       std::string(uni_course_cpp::config::kTempDirectoryPath) +
                           "graph_" + std::to_string(index) + ".json");
       });
-
   return graphs;
 }
 

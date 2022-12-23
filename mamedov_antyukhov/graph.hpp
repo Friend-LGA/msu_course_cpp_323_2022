@@ -2,104 +2,108 @@
 
 #include <unordered_map>
 #include <vector>
+#include "interfaces/i_graph.hpp"
 
 namespace uni_course_cpp {
-class Graph {
+class Graph : public IGraph {
  public:
-  using VertexId = int;
-  using EdgeId = int;
-  using Depth = int;
+  VertexId add_vertex() override;
 
-  struct Vertex {
+  EdgeId add_edge(VertexId first_vertex_id, VertexId second_vertex_id) override;
+
+  bool has_edge(VertexId first_vertex_id,
+                VertexId second_vertex_id) const override;
+
+  GraphDepth depth() const override { return depth_levels_.size(); }
+
+  const std::unordered_map<EdgeId, std::unique_ptr<IEdge>>& get_edges()
+      const override {
+    return edges_;
+  }
+
+  const std::unordered_map<VertexId, std::unique_ptr<IVertex>>& get_vertices()
+      const override {
+    return vertices_;
+  }
+
+  const std::vector<EdgeId>& get_connected_edge_ids(
+      VertexId vertex_id) const override {
+    return connections_.at(vertex_id);
+  }
+
+  const std::vector<std::vector<VertexId>>& get_depth_levels() const override {
+    return depth_levels_;
+  };
+
+  GraphDepth get_vertex_depth(VertexId vertex_id) const override;
+
+  const std::vector<VertexId>& get_vertex_ids_at_depth(
+      GraphDepth depth) const override;
+
+  const std::vector<EdgeId>& get_colored_edge_ids(
+      EdgeColor color) const override;
+
+ private:
+  struct Vertex : public IVertex {
    public:
     explicit Vertex(VertexId id) : id_(id) {}
-    VertexId id() const { return id_; }
+    VertexId id() const override { return id_; }
 
    private:
     VertexId id_ = 0;
   };
 
-  struct Edge {
+  struct Edge : public IEdge {
    public:
-    enum class Color { Grey, Green, Yellow, Red };
     Edge(EdgeId id,
          VertexId first_vertex_id,
          VertexId second_vertex_id,
-         Color color)
+         EdgeColor color)
         : id_(id),
           first_vertex_id_(first_vertex_id),
           second_vertex_id_(second_vertex_id),
           color_(color) {}
-    EdgeId id() const { return id_; }
-    VertexId get_first_vertex_id() const { return first_vertex_id_; }
-    VertexId get_second_vertex_id() const { return second_vertex_id_; }
-    Color color() const { return color_; }
+    EdgeId id() const override { return id_; }
+    VertexId get_first_vertex_id() const override { return first_vertex_id_; }
+    VertexId get_second_vertex_id() const override { return second_vertex_id_; }
+    EdgeColor color() const override { return color_; }
 
    private:
     EdgeId id_ = 0;
     VertexId first_vertex_id_ = 0;
     VertexId second_vertex_id_ = 0;
-    Color color_ = Color::Grey;
+    EdgeColor color_ = EdgeColor::Grey;
   };
 
-  VertexId add_vertex();
+  VertexId get_new_vertex_id() override { return last_vertex_id_++; }
 
-  EdgeId add_edge(VertexId first_vertex_id, VertexId second_vertex_id);
-
-  bool has_edge(VertexId first_vertex_id, VertexId second_vertex_id) const;
-
-  Depth depth() const { return depth_levels_.size(); }
-
-  const std::unordered_map<EdgeId, Edge>& get_edges() const { return edges_; }
-
-  const std::unordered_map<VertexId, Vertex>& get_vertices() const {
-    return vertices_;
-  }
-
-  const std::vector<EdgeId>& get_connected_edge_ids(VertexId vertex_id) const {
-    return connections_.at(vertex_id);
-  }
-
-  const std::vector<std::vector<VertexId>>& get_depth_levels() const {
-    return depth_levels_;
-  };
-
-  Depth get_vertex_depth(VertexId vertex_id) const;
-
-  const std::vector<VertexId>& get_vertex_ids_at_depth(Depth depth) const;
-
-  const std::vector<EdgeId>& get_colored_edge_ids(Edge::Color color) const;
-
- private:
-  VertexId get_new_vertex_id() { return last_vertex_id_++; }
-
-  EdgeId get_new_edge_id() { return last_edge_id_++; };
+  EdgeId get_new_edge_id() override { return last_edge_id_++; };
 
   bool has_vertex_id(VertexId vertex_id) const {
     return vertices_.find(vertex_id) != vertices_.end();
   }
 
-  void set_vertex_depth(VertexId vertex_id, Depth vertex_depth);
+  void set_vertex_depth(VertexId vertex_id, GraphDepth vertex_depth);
 
-  void update_vertex_depth(VertexId vertex_id, Depth vertex_depth);
+  void update_vertex_depth(VertexId vertex_id, GraphDepth vertex_depth);
 
-  const Edge::Color get_edge_color(VertexId first_vertex_id,
-                                   VertexId second_vertex_id) const;
+  const EdgeColor get_edge_color(VertexId first_vertex_id,
+                                 VertexId second_vertex_id) const;
 
-  std::unordered_map<VertexId, Vertex> vertices_ = {};
-  std::unordered_map<EdgeId, Edge> edges_ = {};
+  std::unordered_map<VertexId, std::unique_ptr<IVertex>> vertices_ = {};
+  std::unordered_map<EdgeId, std::unique_ptr<IEdge>> edges_ = {};
 
   std::unordered_map<VertexId, std::vector<EdgeId>> connections_ = {};
 
   std::vector<std::vector<VertexId>> depth_levels_ = {};
 
-  std::unordered_map<VertexId, Depth> vertices_depth_ = {};
+  std::unordered_map<VertexId, GraphDepth> vertices_depth_ = {};
 
-  std::unordered_map<Edge::Color, std::vector<EdgeId>> colored_edge_ids_ = {
-      {Edge::Color::Grey, {}},
-      {Edge::Color::Yellow, {}},
-      {Edge::Color::Green, {}},
-      {Edge::Color::Red, {}}};
+  std::unordered_map<EdgeColor, std::vector<EdgeId>> colored_edge_ids_ = {
+      {EdgeColor::Grey, {}},
+      {EdgeColor::Yellow, {}},
+      {EdgeColor::Green, {}},
+      {EdgeColor::Red, {}}};
 
   VertexId last_vertex_id_ = 0;
   EdgeId last_edge_id_ = 0;
