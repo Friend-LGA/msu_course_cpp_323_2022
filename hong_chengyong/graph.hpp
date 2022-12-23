@@ -12,7 +12,6 @@ using EdgeId = int;
 
 struct Vertex {
   const VertexId id;
-
   explicit Vertex(const VertexId& _id) : id(_id) {}
 };
 
@@ -142,14 +141,14 @@ class Graph {
   }
   void grayEdgeInitialization(const VertexId& from_vertex_id,
                               const VertexId& to_vertex_id) {
-    int min_vertex_id = std::min(from_vertex_id, to_vertex_id);
-    int max_vertex_id = std::max(from_vertex_id, to_vertex_id);
-    Graph::Depth new_depth = vertexes_depths_[min_vertex_id] + 1;
-    vertexes_depths_[max_vertex_id] = new_depth;
-    layers_list_[new_depth].push_back(max_vertex_id);
+    int minVertexId = std::min(from_vertex_id, to_vertex_id);
+    int maxVertexId = std::max(from_vertex_id, to_vertex_id);
+    Graph::Depth new_depth = vertexes_depths_[minVertexId] + 1;
+    vertexes_depths_[maxVertexId] = new_depth;
+    layers_list_[new_depth].push_back(maxVertexId);
     auto front_layer = layers_list_[0];
     for (auto it = front_layer.begin(); it != front_layer.end(); it++) {
-      if (*it == max_vertex_id) {
+      if (*it == maxVertexId) {
         front_layer.erase(it);
         break;
       }
