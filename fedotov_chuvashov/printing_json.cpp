@@ -5,7 +5,7 @@
 namespace uni_course_cpp {
 namespace json {
 
-std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
+std::string print_vertex(const IVertex& vertex, const IGraph& graph) {
   std::ostringstream result;
   bool is_first = true;
   const auto& edges_ids = graph.connected_edge_ids(vertex.id());
@@ -24,7 +24,7 @@ std::string print_vertex(const Graph::Vertex& vertex, const Graph& graph) {
   return result.str();
 }
 
-std::string print_edge(const Graph::Edge& edge) {
+std::string print_edge(const IEdge& edge) {
   std::ostringstream result;
   result << "\n{\"id\": " << edge.id() << ", \"color\": \""
          << printing::print_edge_color(edge.color()) << "\", \"vertex_ids\": ["
@@ -32,7 +32,7 @@ std::string print_edge(const Graph::Edge& edge) {
   return result.str();
 }
 
-std::string print_graph(const Graph& graph) {
+std::string print_graph(const IGraph& graph) {
   std::ostringstream result;
   result << "{\"depth\": " << graph.depth() << ",\n \"vertices\": [";
   bool is_first = true;
@@ -42,7 +42,7 @@ std::string print_graph(const Graph& graph) {
     } else {
       is_first = false;
     }
-    result << print_vertex(vertex, graph);
+    result << print_vertex(*vertex, graph);
   }
 
   result << "],\n\"edges\": [";
@@ -53,7 +53,7 @@ std::string print_graph(const Graph& graph) {
     } else {
       is_first = false;
     }
-    result << print_edge(edge);
+    result << print_edge(*edge);
   }
   result << "]}\n";
   return result.str();
