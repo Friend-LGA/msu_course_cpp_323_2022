@@ -9,7 +9,7 @@
 #include "logger.hpp"
 
 namespace {
-int handle_depth_input() {
+int handleDepthInput() {
   int depth;
   std::cout << "Enter depth:" << std::endl;
   std::cin >> depth;
@@ -20,7 +20,7 @@ int handle_depth_input() {
   return depth;
 }
 
-int handle_new_vertexes_num_input() {
+int handleNewVertexesNumInput() {
   int new_vertexes_num;
   std::cout << "Enter number of new vertices:" << std::endl;
   std::cin >> new_vertexes_num;
@@ -33,7 +33,7 @@ int handle_new_vertexes_num_input() {
   return new_vertexes_num;
 }
 
-int handle_new_graphs_count_input() {
+int handleNewGraphsCountInput() {
   int new_graphs_num;
   std::cout << "Enter number of new graphs:" << std::endl;
   std::cin >> new_graphs_num;
@@ -46,7 +46,7 @@ int handle_new_graphs_count_input() {
   return new_graphs_num;
 }
 
-void write_to_file(const std::string& string, const std::string& file_name) {
+void writeToFile(const std::string& string, const std::string& file_name) {
   std::ofstream file(file_name);
   file << string;
   file.close();
@@ -86,9 +86,9 @@ void prepareTempDirectory() {
 }  // namespace
 
 int main() {
-  const int depth = handle_depth_input();
-  const int new_vertexes_num = handle_new_vertexes_num_input();
-  const int graphs_count = handle_new_graphs_count_input();
+  const int depth = handleDepthInput();
+  const int new_vertexes_num = handleNewVertexesNumInput();
+  const int graphs_count = handleNewGraphsCountInput();
   prepareTempDirectory();
 
   const auto params =
@@ -103,7 +103,7 @@ int main() {
     logger.log(genFinishedString(i, graph));
 
     const auto graph_printer = uni_course_cpp::GraphPrinter(graph);
-    write_to_file(graph_printer.print(),
+    writeToFile(graph_printer.print(),
                   uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
                       std::to_string(i) + ".json");
   }
