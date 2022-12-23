@@ -97,9 +97,7 @@ class Graph {
     }
   }
 
-
   const std::vector<EdgeId>& vertexConnections(const VertexId& id) const {
-
     assert(hasVertex(id) && "Vertex id is out of range");
     return connection_list_.at(id);
   }
@@ -115,7 +113,6 @@ class Graph {
     return vertexes_depths_.at(vertex_id);
   }
   Depth depth() const { return layers_list_.size(); }
-
 
  private:
   std::vector<Vertex> vertexes_;
