@@ -1,13 +1,12 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
 #include <vector>
 #include "graph.hpp"
 #include "graph_generator.hpp"
 
 namespace {
-int handleDepthInput() {
+int handle_depth_input() {
   int depth;
   std::cout << "Enter depth:" << std::endl;
   std::cin >> depth;
@@ -18,7 +17,7 @@ int handleDepthInput() {
   return depth;
 }
 
-int handleNewVertexesCountInput() {
+int handle_new_vertexes_count_input() {
   int new_vertexes_num;
   std::cout << "Enter number of new vertexes:" << std::endl;
   std::cin >> new_vertexes_num;
@@ -31,7 +30,7 @@ int handleNewVertexesCountInput() {
   return new_vertexes_num;
 }
 
-int handleNewGraphsCountInput() {
+int handle_new_graphs_count_input() {
   int new_graphs_num;
   std::cout << "Enter number of new graphs:" << std::endl;
   std::cin >> new_graphs_num;
@@ -44,7 +43,7 @@ int handleNewGraphsCountInput() {
   return new_graphs_num;
 }
 
-void writeToFile(const std::string& string, const std::string& file_name) {
+void write_to_file(const std::string& string, const std::string& file_name) {
   std::ofstream file(file_name);
   file << string;
   file.close();
@@ -91,7 +90,7 @@ std::string printEdge(const uni_course_cpp::Edge& edge) {
   return edge_string;
 }
 
-std::string printGraph(const uni_course_cpp::Graph& graph, int depth) {
+std::string print_graph(const uni_course_cpp::Graph& graph, int depth) {
   std::string graph_string;
   graph_string += "\n\"depth\":";
   graph_string += std::to_string(depth);
@@ -114,14 +113,16 @@ std::string printGraph(const uni_course_cpp::Graph& graph, int depth) {
   graph_string += "\n ]\n}\n";
   return graph_string;
 }
+
 }  // namespace printing
 
 int main() {
-  const int depth = handleDepthInput();
-  const int new_vertexes_count = handleNewVertexesCountInput();
-  const auto params = GraphGenerator::Params(depth, new_vertexes_count);
-  const auto generator = GraphGenerator(std::move(params));
+  const int depth = handle_depth_input();
+  const int new_vertexes_count = handle_new_vertexes_count_input();
+  auto params =  uni_course_cpp::GraphGenerator::Params(depth,new_vertexes_count );
+  const auto generator = uni_course_cpp::GraphGenerator(std::move(params));
   const auto graph = generator.generate();
-  const auto graphjson = printing::printGraph(graph, depth);
-  writeToFile(graphjson, "graph.json");
+  const auto graphjson = printing::print_graph(graph, depth);
+  write_to_file(graphjson, "graph.json");
+  return 0;
 }

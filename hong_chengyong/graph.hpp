@@ -5,13 +5,14 @@
 #include <unordered_map>
 #include <vector>
 
-namespace uni_course_cpp {
+namespace uni_course_cpp{
 
 using VertexId = int;
 using EdgeId = int;
 
 struct Vertex {
   const VertexId id;
+
   explicit Vertex(const VertexId& _id) : id(_id) {}
 };
 
@@ -36,10 +37,19 @@ struct Edge {
 class Graph {
  public:
   using Depth = int;
-  const int kStart = 0;
+  static constexpr Depth kDefaultDepth = 0;
   bool hasVertex(const VertexId& vertex_id) const {
     for (const auto& vertex : vertexes_) {
       if (vertex.id == vertex_id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool hasEdge(const EdgeId& edge_id) const {
+    for (const auto& edge : edges_) {
+      if (edge.id == edge_id) {
         return true;
       }
     }
@@ -52,7 +62,7 @@ class Graph {
     assert(hasVertex(to_vertex_id) && "to_vertex index is out of range");
     if (from_vertex_id == to_vertex_id) {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
-        const auto& edge = edges_[edge_id];
+        const auto& edge = getEdge(edge_id);
         if (edge.from_vertex_id == from_vertex_id &&
             edge.to_vertex_id == from_vertex_id) {
           return true;
@@ -60,7 +70,7 @@ class Graph {
       }
     } else {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
-        const auto& edge = edges_[edge_id];
+        const auto& edge = getEdge(edge_id);
         if (edge.from_vertex_id == to_vertex_id ||
             edge.to_vertex_id == to_vertex_id) {
           return true;
@@ -73,8 +83,8 @@ class Graph {
   VertexId addVertex() {
     const auto& new_vertex = vertexes_.emplace_back(getNewVertexId());
     connection_list_.insert({new_vertex.id, std::vector<EdgeId>()});
-    layers_list_[kStart].push_back(new_vertex.id);
-    vertexes_depths_[new_vertex.id] = 0;
+    layers_list_[kDefaultDepth].push_back(new_vertex.id);
+    vertexes_depths_[new_vertex.id] = kDefaultDepth;
     return new_vertex.id;
   }
 
@@ -96,18 +106,27 @@ class Graph {
     }
   }
 
+  const Edge& getEdge(const EdgeId& edge_id) const {
+    assert(hasEdge(edge_id) && "Edge id is out of range.");
+    for (const auto& edge : edges_) {
+      if (edge.id == edge_id) {
+        return edge;
+      }
+    }
+    throw std::runtime_error("Cannot be reached.");
+  }
+
   const std::vector<EdgeId>& vertexConnections(const VertexId& id) const {
     assert(hasVertex(id) && "Vertex id is out of range");
     return connection_list_.at(id);
   }
   const std::vector<Vertex>& vertexes() const { return vertexes_; }
   const std::vector<Edge>& edges() const { return edges_; }
-
-  const std::vector<VertexId>& vertexIdsAtLayer(int depth) const {
+  const std::vector<VertexId>& vertexIdsAtLayer(Depth depth) const {
     assert(depth <= layers_list_.size() && "Graph is not that deep");
     return layers_list_.at(depth);
   }
-  int vertexDepth(const VertexId& vertex_id) const {
+  Depth vertexDepth(const VertexId& vertex_id) const {
     assert(hasVertex(vertex_id) && "Vertex id is out of range");
     return vertexes_depths_.at(vertex_id);
   }
@@ -116,16 +135,17 @@ class Graph {
  private:
   std::vector<Vertex> vertexes_;
   std::vector<Edge> edges_;
-  VertexId vertex_new_id_ = 0;
-  EdgeId edge_new_id_ = 0;
+  VertexId new_vertex_id_ = 0;
+  EdgeId new_edge_id_ = 0;
   std::unordered_map<VertexId, std::vector<EdgeId>> connection_list_;
   std::unordered_map<int, std::vector<VertexId>> layers_list_;
   std::unordered_map<VertexId, Depth> vertexes_depths_;
   std::unordered_map<Edge::Color, std::vector<EdgeId>> color_list_;
-  VertexId getNewVertexId() { return vertex_new_id_++; }
-  EdgeId getNewEdgeId() { return edge_new_id_++; }
+  VertexId getNewVertexId() { return new_vertex_id_++; }
+  EdgeId getNewEdgeId() { return new_edge_id_++; }
   Edge::Color calculateEdgeColor(const VertexId& from_vertex_id,
-                                 const VertexId& to_vertex_id) const {
+                                 const VertexId& to_vertex_id) const
+ {
     if (connection_list_.at(to_vertex_id).size() == 0 ||
         connection_list_.at(from_vertex_id).size() == 0) {
       return Edge::Color::Gray;
@@ -136,23 +156,28 @@ class Graph {
                1)  // if the interval between vertexes = 1
     {
       return Edge::Color::Yellow;
-    } else
+    } else if (std::abs(vertexDepth(to_vertex_id) -
+                        vertexDepth(from_vertex_id)) ==
+               2)  // if the interval between vertexes = 2
+               {
       return Edge::Color::Red;
+    }
+    throw std::runtime_error("Failed to detirmine color");
   }
   void grayEdgeInitialization(const VertexId& from_vertex_id,
                               const VertexId& to_vertex_id) {
-    int minVertexId = std::min(from_vertex_id, to_vertex_id);
-    int maxVertexId = std::max(from_vertex_id, to_vertex_id);
-    Graph::Depth new_depth = vertexes_depths_[minVertexId] + 1;
-    vertexes_depths_[maxVertexId] = new_depth;
-    layers_list_[new_depth].push_back(maxVertexId);
-    auto front_layer = layers_list_[0];
+    const int min_vertex_id = std::min(from_vertex_id, to_vertex_id);
+    const int max_vertex_id = std::max(from_vertex_id, to_vertex_id);
+    const Graph::Depth new_depth = vertexes_depths_[min_vertex_id] + 1;
+    vertexes_depths_[max_vertex_id] = new_depth;
+    layers_list_[new_depth].push_back(max_vertex_id);
+    auto front_layer = layers_list_[kDefaultDepth];
     for (auto it = front_layer.begin(); it != front_layer.end(); it++) {
-      if (*it == maxVertexId) {
+      if (*it == max_vertex_id) {
         front_layer.erase(it);
         break;
       }
     }
   }
 };
-}  // namespace uni_course_cpp
+}// namespace uni_course_cpp
