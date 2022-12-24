@@ -50,7 +50,7 @@ GraphGenerationController::GraphGenerationController(
   };
 
   for (int i = 0; i < threads_count_; i++) {
-    workers_.emplace_back(get_job_callback);
+    workers_.emplace_back(get_job_callback);  //
   }
 }
 

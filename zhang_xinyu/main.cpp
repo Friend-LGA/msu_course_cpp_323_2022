@@ -119,12 +119,12 @@ std::vector<uni_course_cpp::Graph> generate_graphs(
         const auto graph_description = printing::print_graph(graph);
         logger.log(generation_finished_string(index, graph_description));
         const auto graph_json = printing::json::print_graph(graph);
-        write_to_file(graph_json,
-                      std::string(uni_course_cpp::config::kTempDirectoryPath) +
-                          "graph_" + std::to_string(index) + ".json");
+        write_to_file(graph_json, std::string(config::kTempDirectoryPath) +
+                                      "graph_" + std::to_string(index) +
+                                      ".json");
       });
 
-  return graphs;
+  return graphs;  //
 }
 
 int main() {
@@ -137,5 +137,7 @@ int main() {
   prepare_temp_directory();
 
   auto params = GraphGenerator::Params(depth, new_vertices_count);
+  const auto graphs =
+      generate_graphs(std::move(params), graphs_count, threads_count);
   return 0;
 }
