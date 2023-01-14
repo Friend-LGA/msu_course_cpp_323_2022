@@ -16,3 +16,8 @@ main.o: graph.hpp graph_generator.hpp graph_generation_controller.hpp graph_prin
 
 clean:
 	rm -rf *.o prog
+
+clang:
+	clang-format -i *.cpp --style=Chromium
+	clang-format -i *.hpp --style=Chromium
+	clang-format -i interfaces/* --style=Chromium

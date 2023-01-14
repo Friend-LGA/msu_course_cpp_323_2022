@@ -3,8 +3,8 @@
 
 namespace uni_course_cpp {
 
-std::string printing::json::print_vertex(const Graph::Vertex& vertex,
-                                         const Graph& graph) {
+std::string printing::json::print_vertex(const IVertex& vertex,
+                                         const IGraph& graph) {
   const auto vertex_id = vertex.id();
   std::string vertex_json =
       "{\"id\":" + std::to_string(vertex_id) + ",\"edge_ids\":[";
@@ -24,7 +24,7 @@ std::string printing::json::print_vertex(const Graph::Vertex& vertex,
   return vertex_json;
 }
 
-std::string printing::json::print_edge(const Graph::Edge& edge) {
+std::string printing::json::print_edge(const IEdge& edge) {
   const auto edge_id = edge.id();
   return "{\"id\":" + std::to_string(edge_id) + ",\"vertex_ids\":[" +
          std::to_string(edge.from_vertex_id()) + "," +
@@ -32,7 +32,7 @@ std::string printing::json::print_edge(const Graph::Edge& edge) {
          printing::print_edge_color(edge.color()) + "\"}";
 }
 
-std::string printing::json::print_graph(const Graph& graph) {
+std::string printing::json::print_graph(const IGraph& graph) {
   std::string graph_json =
       "{\"depth\":" + std::to_string(graph.get_graph_depth()) +
       ",\"vertices\":[";
@@ -40,7 +40,7 @@ std::string printing::json::print_graph(const Graph& graph) {
 
   if (!vertices.empty()) {
     for (const auto& [vertex_id, vertex] : vertices) {
-      graph_json += print_vertex(vertex, graph) + ",";
+      graph_json += print_vertex(*vertex, graph) + ",";
     }
 
     graph_json.pop_back();
@@ -52,7 +52,7 @@ std::string printing::json::print_graph(const Graph& graph) {
 
   if (!edges.empty()) {
     for (const auto& [edge_id, edge] : edges) {
-      graph_json += print_edge(edge) + ",";
+      graph_json += print_edge(*edge) + ",";
     }
 
     graph_json.pop_back();

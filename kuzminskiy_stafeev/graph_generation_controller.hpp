@@ -5,13 +5,15 @@
 #include <thread>
 #include "graph.hpp"
 #include "graph_generator.hpp"
+#include "interfaces/i_worker.hpp"
 
 namespace uni_course_cpp {
 
 class GraphGenerationController {
  public:
   using GenStartedCallback = std::function<void(int index)>;
-  using GenFinishedCallback = std::function<void(int index, Graph&& graph)>;
+  using GenFinishedCallback =
+      std::function<void(int index, std::unique_ptr<IGraph> graph)>;
 
   GraphGenerationController(int threads_count,
                             int graphs_count,
@@ -24,7 +26,7 @@ class GraphGenerationController {
   using JobCallback = std::function<void()>;
   using GetJobCallback = std::function<std::optional<JobCallback>()>;
 
-  class Worker {
+  class Worker : public IWorker {
    public:
     explicit Worker(const GetJobCallback& get_job_callback)
         : thread_(), get_job_callback_(get_job_callback) {}
