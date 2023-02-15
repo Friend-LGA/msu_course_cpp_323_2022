@@ -1,0 +1,30 @@
+2023.02.16 06:46:47: Graph 0, Generation Started
+2023.02.16 06:46:47: Graph 0, Generation Finished {
+ depth: 3,
+ vertices: 13, [1, 3, 5, 4],
+ edges: 25, {gray: 12, green: 1, blue: 3, yellow: 7, red: 2},
+}
+2023.02.16 06:46:47: Graph 1, Generation Started
+2023.02.16 06:46:47: Graph 1, Generation Finished {
+ depth: 3,
+ vertices: 12, [1, 3, 5, 3],
+ edges: 20, {gray: 11, green: 1, blue: 2, yellow: 6, red: 0},
+}
+2023.02.16 06:46:47: Graph 2, Generation Started
+2023.02.16 06:46:47: Graph 2, Generation Finished {
+ depth: 3,
+ vertices: 15, [1, 3, 6, 5],
+ edges: 27, {gray: 14, green: 2, blue: 2, yellow: 8, red: 1},
+}
+2023.02.16 06:46:47: Graph 3, Generation Started
+2023.02.16 06:46:47: Graph 3, Generation Finished {
+ depth: 3,
+ vertices: 8, [1, 3, 3, 1],
+ edges: 11, {gray: 7, green: 0, blue: 0, yellow: 3, red: 1},
+}
+2023.02.16 06:46:47: Graph 4, Generation Started
+2023.02.16 06:46:47: Graph 4, Generation Finished {
+ depth: 3,
+ vertices: 13, [1, 3, 5, 4],
+ edges: 24, {gray: 12, green: 0, blue: 3, yellow: 6, red: 3},
+}

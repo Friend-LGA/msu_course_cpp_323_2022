@@ -26,7 +26,7 @@ bool Graph::hasEdge(const EdgeId& edge_id) const {
   return false;
 }
 
-bool Graph::is_connected(const VertexId& from_vertex_id,
+bool Graph::areConnected(const VertexId& from_vertex_id,
                          const VertexId& to_vertex_id) const {
   assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
   assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
@@ -65,6 +65,8 @@ Edge::Colors Graph::calculateEdgeColor(const VertexId& from_vertex_id,
     return Edge::Colors::Gray;
   } else if (from_vertex_id == to_vertex_id) {
     return Edge::Colors::Green;
+  } else if (vertexDepth(to_vertex_id) == vertexDepth(from_vertex_id)) {
+    return Edge::Colors::Blue;
   } else if (std::abs(vertexDepth(to_vertex_id) -
                       vertexDepth(from_vertex_id)) == 1) {
     return Edge::Colors::Yellow;
@@ -91,7 +93,7 @@ void Graph::addEdge(const VertexId& from_vertex_id,
                     const VertexId& to_vertex_id) {
   assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
   assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
-  assert(!is_connected(from_vertex_id, to_vertex_id) &&
+  assert(!areConnected(from_vertex_id, to_vertex_id) &&
          "These vertexes are already connected");
   auto color = calculateEdgeColor(from_vertex_id, to_vertex_id);
   if (color == Edge::Colors::Gray) {

@@ -1,0 +1,176 @@
+{
+ "vertices": [
+  {
+   "id": 0,
+   "edge_ids": [0, 1, 2],
+   "depth": 0
+  }, {
+   "id": 1,
+   "edge_ids": [0, 3, 4, 14, 15],
+   "depth": 1
+  }, {
+   "id": 2,
+   "edge_ids": [1, 5, 6],
+   "depth": 1
+  }, {
+   "id": 3,
+   "edge_ids": [2, 7, 8, 16],
+   "depth": 1
+  }, {
+   "id": 4,
+   "edge_ids": [3, 16, 17, 18],
+   "depth": 2
+  }, {
+   "id": 5,
+   "edge_ids": [4, 9, 19],
+   "depth": 2
+  }, {
+   "id": 6,
+   "edge_ids": [5, 10, 11, 20, 21],
+   "depth": 2
+  }, {
+   "id": 7,
+   "edge_ids": [6, 20, 22],
+   "depth": 2
+  }, {
+   "id": 8,
+   "edge_ids": [7, 12, 14, 23],
+   "depth": 2
+  }, {
+   "id": 9,
+   "edge_ids": [8, 13, 24],
+   "depth": 2
+  }, {
+   "id": 10,
+   "edge_ids": [9],
+   "depth": 3
+  }, {
+   "id": 11,
+   "edge_ids": [10, 18, 19, 24, 25],
+   "depth": 3
+  }, {
+   "id": 12,
+   "edge_ids": [11, 22, 25],
+   "depth": 3
+  }, {
+   "id": 13,
+   "edge_ids": [12, 26],
+   "depth": 3
+  }, {
+   "id": 14,
+   "edge_ids": [13, 15, 21, 23],
+   "depth": 3
+  }
+ ],
+ "edges": [
+  {
+   "id": 0,
+   "vertex_ids": [0, 1],
+   "color": "gray"
+  }, {
+   "id": 1,
+   "vertex_ids": [0, 2],
+   "color": "gray"
+  }, {
+   "id": 2,
+   "vertex_ids": [0, 3],
+   "color": "gray"
+  }, {
+   "id": 3,
+   "vertex_ids": [1, 4],
+   "color": "gray"
+  }, {
+   "id": 4,
+   "vertex_ids": [1, 5],
+   "color": "gray"
+  }, {
+   "id": 5,
+   "vertex_ids": [2, 6],
+   "color": "gray"
+  }, {
+   "id": 6,
+   "vertex_ids": [2, 7],
+   "color": "gray"
+  }, {
+   "id": 7,
+   "vertex_ids": [3, 8],
+   "color": "gray"
+  }, {
+   "id": 8,
+   "vertex_ids": [3, 9],
+   "color": "gray"
+  }, {
+   "id": 9,
+   "vertex_ids": [5, 10],
+   "color": "gray"
+  }, {
+   "id": 10,
+   "vertex_ids": [6, 11],
+   "color": "gray"
+  }, {
+   "id": 11,
+   "vertex_ids": [6, 12],
+   "color": "gray"
+  }, {
+   "id": 12,
+   "vertex_ids": [8, 13],
+   "color": "gray"
+  }, {
+   "id": 13,
+   "vertex_ids": [9, 14],
+   "color": "gray"
+  }, {
+   "id": 14,
+   "vertex_ids": [1, 8],
+   "color": "yellow"
+  }, {
+   "id": 15,
+   "vertex_ids": [1, 14],
+   "color": "red"
+  }, {
+   "id": 16,
+   "vertex_ids": [3, 4],
+   "color": "yellow"
+  }, {
+   "id": 17,
+   "vertex_ids": [4, 4],
+   "color": "green"
+  }, {
+   "id": 18,
+   "vertex_ids": [4, 11],
+   "color": "yellow"
+  }, {
+   "id": 19,
+   "vertex_ids": [5, 11],
+   "color": "yellow"
+  }, {
+   "id": 20,
+   "vertex_ids": [6, 7],
+   "color": "blue"
+  }, {
+   "id": 21,
+   "vertex_ids": [6, 14],
+   "color": "yellow"
+  }, {
+   "id": 22,
+   "vertex_ids": [7, 12],
+   "color": "yellow"
+  }, {
+   "id": 23,
+   "vertex_ids": [8, 14],
+   "color": "yellow"
+  }, {
+   "id": 24,
+   "vertex_ids": [9, 11],
+   "color": "yellow"
+  }, {
+   "id": 25,
+   "vertex_ids": [11, 12],
+   "color": "blue"
+  }, {
+   "id": 26,
+   "vertex_ids": [13, 13],
+   "color": "green"
+  }
+ ]
+}
