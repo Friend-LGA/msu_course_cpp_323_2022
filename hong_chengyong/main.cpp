@@ -9,7 +9,7 @@
 #include "logger.hpp"
 
 namespace {
-int handle_depth_input() {
+int handleDepthInput() {
   int depth;
   std::cout << "Enter depth:" << std::endl;
   std::cin >> depth;
@@ -20,7 +20,7 @@ int handle_depth_input() {
   return depth;
 }
 
-int handle_new_vertexes_num_input() {
+int handleNewVertexesNumInput() {
   int new_vertexes_num;
   std::cout << "Enter number of new vertices:" << std::endl;
   std::cin >> new_vertexes_num;
@@ -46,7 +46,7 @@ int handleNewGraphsCountInput() {
   return new_graphs_num;
 }
 
-void write_to_file(const std::string& string, const std::string& file_name) {
+void writeToFile(const std::string& string, const std::string& file_name) {
   std::ofstream file(file_name);
   file << string;
   file.close();
@@ -85,8 +85,13 @@ void prepareTempDirectory() {
 }  // namespace
 
 int main() {
+<<<<<<< Updated upstream
   const int depth = handle_depth_input();
   const int new_vertexes_num = handle_new_vertexes_num_input();
+=======
+  const int depth = handleDepthInput();
+  const int new_vertexes_num = handleNewVertexesNumInput();
+>>>>>>> Stashed changes
   const int graphs_count = handleNewGraphsCountInput();
   prepareTempDirectory();
 
@@ -102,9 +107,15 @@ int main() {
     logger.log(genFinishedString(i, graph));
 
     const auto graph_printer = uni_course_cpp::GraphPrinter(graph);
+<<<<<<< Updated upstream
     write_to_file(
         graph_printer.print(),
         config::TEMP_DIRECTORY_PATH + "graph_" + std::to_string(i) + ".json");
+=======
+    writeToFile(graph_printer.print(),
+                  uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
+                      std::to_string(i) + ".json");
+>>>>>>> Stashed changes
   }
 
   return 0;
