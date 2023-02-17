@@ -26,21 +26,23 @@ bool Graph::hasEdge(const EdgeId& edge_id) const {
   return false;
 }
 
-bool Graph::areConnected(const VertexId& vertex_id1,
-                         const VertexId& vertex_id2) const {
-  assert(hasVertex(vertex_id1) && "Vertex1 index is out of range");
-  assert(hasVertex(vertex_id2) && "Vertex2 index is out of range");
-  if (vertex_id1 == vertex_id2) {
-    for (const auto& edge_id : connection_list_.at(vertex_id1)) {
+bool Graph::areConnected(const VertexId& from_vertex_id,
+                         const VertexId& to_vertex_id) const {
+  assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
+  assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
+  if (from_vertex_id == to_vertex_id) {
+    for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
       const auto& edge = getEdge(edge_id);
-      if (edge.vertex_id1 == vertex_id1 && edge.vertex_id2 == vertex_id1) {
+      if (edge.from_vertex_id == from_vertex_id &&
+          edge.to_vertex_id == from_vertex_id) {
         return true;
       }
     }
   } else {
-    for (const auto& edge_id : connection_list_.at(vertex_id1)) {
+    for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
       const auto& edge = getEdge(edge_id);
-      if (edge.vertex_id1 == vertex_id2 || edge.vertex_id2 == vertex_id2) {
+      if (edge.from_vertex_id == to_vertex_id ||
+          edge.to_vertex_id == to_vertex_id) {
         return true;
       }
     }
@@ -56,49 +58,51 @@ VertexId Graph::addVertex() {
   return new_vertex.id;
 }
 
-Edge::Colors Graph::calculateEdgeColor(const VertexId& vertex_id1,
-                                       const VertexId& vertex_id2) const {
-  if (connection_list_.at(vertex_id2).size() == 0 ||
-      connection_list_.at(vertex_id1).size() == 0) {
+Edge::Colors Graph::calculateEdgeColor(const VertexId& from_vertex_id,
+                                       const VertexId& to_vertex_id) const {
+  if (connection_list_.at(to_vertex_id).size() == 0 ||
+      connection_list_.at(from_vertex_id).size() == 0) {
     return Edge::Colors::Gray;
-  } else if (vertex_id1 == vertex_id2) {
+  } else if (from_vertex_id == to_vertex_id) {
     return Edge::Colors::Green;
-  } else if (std::abs(vertexDepth(vertex_id2) - vertexDepth(vertex_id1)) == 1) {
+  } else if (std::abs(vertexDepth(to_vertex_id) -
+                      vertexDepth(from_vertex_id)) == 1) {
     return Edge::Colors::Yellow;
   } else {
     return Edge::Colors::Red;
   }
 }
 
-void Graph::grayEdgeInitialization(const VertexId& vertex_id1,
-                                   const VertexId& vertex_id2) {
-  int new_depth = vertexes_depths_[std::min(vertex_id1, vertex_id2)] + 1;
-  vertexes_depths_[std::max(vertex_id1, vertex_id2)] = new_depth;
+void Graph::grayEdgeInitialization(const VertexId& from_vertex_id,
+                                   const VertexId& to_vertex_id) {
+  int new_depth = vertexes_depths_[std::min(from_vertex_id, to_vertex_id)] + 1;
+  vertexes_depths_[std::max(from_vertex_id, to_vertex_id)] = new_depth;
   depth_ = std::max(depth_, new_depth);
-  layers_list_[new_depth].push_back(std::max(vertex_id1, vertex_id2));
+  layers_list_[new_depth].push_back(std::max(from_vertex_id, to_vertex_id));
   for (auto it = layers_list_[0].begin(); it != layers_list_[0].end(); it++) {
-    if (*it == std::max(vertex_id1, vertex_id2)) {
+    if (*it == std::max(from_vertex_id, to_vertex_id)) {
       layers_list_[0].erase(it);
       break;
     }
   }
 }
 
-void Graph::addEdge(const VertexId& vertex_id1, const VertexId& vertex_id2) {
-  assert(hasVertex(vertex_id1) && "Vertex1 index is out of range");
-  assert(hasVertex(vertex_id2) && "Vertex2 index is out of range");
-  assert(!areConnected(vertex_id1, vertex_id2) &&
+void Graph::addEdge(const VertexId& from_vertex_id,
+                    const VertexId& to_vertex_id) {
+  assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
+  assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
+  assert(!areConnected(from_vertex_id, to_vertex_id) &&
          "These vertexes are already connected");
-  auto color = calculateEdgeColor(vertex_id1, vertex_id2);
+  auto color = calculateEdgeColor(from_vertex_id, to_vertex_id);
   if (color == Edge::Colors::Gray) {
-    grayEdgeInitialization(vertex_id1, vertex_id2);
+    grayEdgeInitialization(from_vertex_id, to_vertex_id);
   }
   const auto& new_edge =
-      edges_.emplace_back(getNewEdgeId(), vertex_id1, vertex_id2, color);
+      edges_.emplace_back(getNewEdgeId(), from_vertex_id, to_vertex_id, color);
   color_list_[color].push_back(new_edge.id);
-  connection_list_[vertex_id1].push_back(new_edge.id);
-  if (vertex_id1 != vertex_id2) {
-    connection_list_[vertex_id2].push_back(new_edge.id);
+  connection_list_[from_vertex_id].push_back(new_edge.id);
+  if (from_vertex_id != to_vertex_id) {
+    connection_list_[to_vertex_id].push_back(new_edge.id);
   }
 }
 
