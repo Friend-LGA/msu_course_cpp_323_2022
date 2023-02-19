@@ -3,6 +3,7 @@
 #include <functional>
 #include <iostream>
 #include <list>
+#include <optional>
 #include <mutex>
 #include <random>
 #include <thread>
@@ -12,7 +13,7 @@
 namespace
 {
   constexpr float GREEN_PROBABILITY = 0.1, RED_PROBABILITY = 0.33;
-  float getGreyProbability(float step, Depth depth)
+  float getGreyProbability(float step, uni_course_cpp::Depth depth)
   {
     return 1.0 - step * depth;
   }
@@ -115,7 +116,7 @@ namespace uni_course_cpp
     Graph graph;
     VertexId root_id = graph.addVertex();
     using JobCallback = std::function<void()>;
-    auto jobs = std::list<JobCallback>();
+    auto jobs = std::list<JobCallback>(); //
     std::mutex mutex;
     std::atomic<int> created_branches = 0;
     bool should_terminate = false;
@@ -154,7 +155,7 @@ namespace uni_course_cpp
       }
     };
 
-    const int MAX_THREADS_COUNT = std::thread::hardware_concurrency();
+    const int MAX_THREADS_COUNT = std::thread::hardware_concurrency(); // 获取硬件最大支持线程
     const auto threads_count =
         std::min(MAX_THREADS_COUNT, params_.new_vertexes_num);
     auto threads = std::vector<std::thread>();

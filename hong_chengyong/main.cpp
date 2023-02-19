@@ -12,7 +12,7 @@ namespace
 {
   int handle_depth_input()
   {
-    Depth depth;
+    int depth;
     std::cout << "Enter depth:" << std::endl;
     std::cin >> depth;
     while (depth < 0)
@@ -69,7 +69,7 @@ namespace
   {
     std::string string =
         "Graph " + std::to_string(i) + ", Generation Finished {\n";
-    Depth depth = graph.depth();
+    uni_course_cpp::Depth depth = graph.depth();
     string += " depth: " + std::to_string(depth) + ",\n";
     string += " vertices: " + std::to_string(graph.vertexes().size()) + ", [";
     for (int j = 0; j <= depth; j++)
@@ -100,7 +100,7 @@ namespace
 
 int main()
 {
-  const Depth depth = handle_depth_input();
+  const uni_course_cpp::Depth depth = handle_depth_input();
   const int new_vertexes_num = handle_new_vertexes_num_input();
   const int graphs_count = handleNewGraphsCountInput();
   prepareTempDirectory();
