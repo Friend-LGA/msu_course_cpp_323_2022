@@ -1,2 +1,0 @@
-Hong Chengyong
-Хун Ченун
