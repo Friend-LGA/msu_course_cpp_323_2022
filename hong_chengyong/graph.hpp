@@ -57,13 +57,6 @@ class Graph {
   int depth() const { return depth_; }
   const std::vector<EdgeId>& colorEdges(const Edge::Colors& color) const;
 
-  const std::vector<EdgeId> vertexConnections(const VertexId& id) const {
-    assert(hasVertex(id) && "Vertex id is out of range");
-    return connection_list_.at(id);
-  }
-  const std::vector<Vertex>& vertexes() const { return vertexes_; }
-  const std::vector<Edge>& edges() const { return edges_; }
-
  private:
   std::vector<Vertex> vertexes_;
   std::vector<Edge> edges_;
