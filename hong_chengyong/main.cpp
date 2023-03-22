@@ -1,3 +1,4 @@
+
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -33,6 +34,7 @@ int handleNewVertexesNumInput() {
   return new_vertexes_num;
 }
 
+
 int handleNewGraphsCountInput() {
   int new_graphs_num;
   std::cout << "Enter number of new graphs:" << std::endl;
@@ -51,6 +53,7 @@ void writeToFile(const std::string& string, const std::string& file_name) {
   file << string;
   file.close();
 }
+
 
 std::string genStartedString(int i) {
   return "Graph " + std::to_string(i) + ", Generation Started\n";
@@ -107,5 +110,16 @@ int main() {
                     std::to_string(i) + ".json");
   }
 
+
+void writeToFile(const std::string& string, const std::string& file_name) {
+  std::ofstream file(file_name);
+  file << string;
+  file.close();
+}
+
+int main() {
+  const auto graph = generateGraph();
+  const auto graphJson = printing::json::printGraph(graph);
+  writeToFile(graphJson, "graph.json");
   return 0;
 }
