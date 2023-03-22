@@ -102,9 +102,8 @@ int main() {
     logger.log(genFinishedString(i, graph));
 
     const auto graph_printer = uni_course_cpp::GraphPrinter(graph);
-    writeToFile(graph_printer.print(),
-                uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
-                    std::to_string(i) + ".json");
+    writeToFile(graph_printer.print(), config::TEMP_DIRECTORY_PATH + "graph_" +
+                                           std::to_string(i) + ".json");
   }
 
   return 0;
