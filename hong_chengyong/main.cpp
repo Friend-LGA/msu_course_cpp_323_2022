@@ -85,13 +85,8 @@ void prepareTempDirectory() {
 }  // namespace
 
 int main() {
-<<<<<<< Updated upstream
-  const int depth = handle_depth_input();
-  const int new_vertexes_num = handle_new_vertexes_num_input();
-=======
   const int depth = handleDepthInput();
   const int new_vertexes_num = handleNewVertexesNumInput();
->>>>>>> Stashed changes
   const int graphs_count = handleNewGraphsCountInput();
   prepareTempDirectory();
 
@@ -107,15 +102,9 @@ int main() {
     logger.log(genFinishedString(i, graph));
 
     const auto graph_printer = uni_course_cpp::GraphPrinter(graph);
-<<<<<<< Updated upstream
-    write_to_file(
-        graph_printer.print(),
-        config::TEMP_DIRECTORY_PATH + "graph_" + std::to_string(i) + ".json");
-=======
     writeToFile(graph_printer.print(),
-                  uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
-                      std::to_string(i) + ".json");
->>>>>>> Stashed changes
+                uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
+                    std::to_string(i) + ".json");
   }
 
   return 0;
