@@ -1,90 +1,112 @@
-#include <fstream>
+#include <filesystem>
 #include <iostream>
 #include <string>
+#include <vector>
+#include "config.hpp"
 #include "graph.hpp"
+#include "graph_generator.hpp"
+#include "graph_printer.hpp"
+#include "logger.hpp"
 
-namespace printing {
-namespace json {
-std::string printVertex(const uni_course_cpp::VertexId& id,
-                        const uni_course_cpp::Graph& graph) {
-  std::string vertex_string =
-      "{\n   \"id\": " + std::to_string(id) + ",\n   \"edge_ids\": [";
-  for (const auto& edge_id : graph.vertexConnections(id)) {
-    vertex_string += std::to_string(edge_id) + ", ";
+namespace {
+int handle_depth_input() {
+  int depth;
+  std::cout << "Enter depth:" << std::endl;
+  std::cin >> depth;
+  while (depth < 0) {
+    std::cout << "Depth must be not negative. Enter depth again:" << std::endl;
+    std::cin >> depth;
   }
-  vertex_string.pop_back();
-  vertex_string.pop_back();
-  vertex_string += "]\n  }, ";
-  return vertex_string;
-}
-std::string printEdge(const uni_course_cpp::Edge& edge) {
-  std::string edge_string = "{\n   \"id\": " + std::to_string(edge.id);
-  edge_string += ",\n   \"vertex_ids\": [";
-  edge_string += std::to_string(edge.from_vertex_id) + ", ";
-  edge_string += std::to_string(edge.to_vertex_id) + "]\n  }, ";
-  return edge_string;
+  return depth;
 }
 
-std::string printGraph(const uni_course_cpp::Graph& graph) {
-  std::string graph_string;
-  graph_string += "{\n \"vertices\": [\n  ";
-  for (const auto& vertex : graph.vertexes()) {
-    graph_string += printVertex(vertex.id, graph);
+int handle_new_vertexes_num_input() {
+  int new_vertexes_num;
+  std::cout << "Enter number of new vertices:" << std::endl;
+  std::cin >> new_vertexes_num;
+  while (new_vertexes_num < 0) {
+    std::cout << "Number of new vertices must be not negative. Enter number of "
+                 "new vertexes again:"
+              << std::endl;
+    std::cin >> new_vertexes_num;
   }
-  graph_string.pop_back();
-  graph_string.pop_back();
-  graph_string += "\n ],\n \"edges\": [\n  ";
-  for (const auto& edge : graph.edges()) {
-    graph_string += printEdge(edge);
-  }
-  graph_string.pop_back();
-  graph_string.pop_back();
-  graph_string += "\n ]\n}\n";
-  return graph_string;
+  return new_vertexes_num;
 }
 
-}  // namespace json
-}  // namespace printing
-
-constexpr int kVerticesCount = 14;
-
-uni_course_cpp::Graph generateGraph() {
-  auto graph = uni_course_cpp::Graph();
-
-  for (int i = 0; i < kVerticesCount; i++) {
-    graph.addVertex();
+int handleNewGraphsCountInput() {
+  int new_graphs_num;
+  std::cout << "Enter number of new graphs:" << std::endl;
+  std::cin >> new_graphs_num;
+  while (new_graphs_num < 0) {
+    std::cout << "Number of new graphs must be not negative. Enter number of "
+                 "new hraphs again:"
+              << std::endl;
+    std::cin >> new_graphs_num;
   }
-
-  graph.addEdge(0, 1);
-  graph.addEdge(0, 2);
-  graph.addEdge(0, 3);
-  graph.addEdge(1, 4);
-  graph.addEdge(1, 5);
-  graph.addEdge(1, 6);
-  graph.addEdge(2, 7);
-  graph.addEdge(2, 8);
-  graph.addEdge(3, 9);
-  graph.addEdge(4, 10);
-  graph.addEdge(5, 10);
-  graph.addEdge(6, 10);
-  graph.addEdge(7, 11);
-  graph.addEdge(8, 11);
-  graph.addEdge(9, 12);
-  graph.addEdge(10, 13);
-  graph.addEdge(11, 13);
-  graph.addEdge(12, 13);
-  return graph;
+  return new_graphs_num;
 }
 
-void writeToFile(const std::string& string, const std::string& file_name) {
+void write_to_file(const std::string& string, const std::string& file_name) {
   std::ofstream file(file_name);
   file << string;
   file.close();
 }
 
+std::string genStartedString(int i) {
+  return "Graph " + std::to_string(i) + ", Generation Started\n";
+}
+
+std::string genFinishedString(int i, const uni_course_cpp::Graph& graph) {
+  std::string string =
+      "Graph " + std::to_string(i) + ", Generation Finished {\n";
+  uni_course_cpp::Depth depth = graph.depth();
+  string += " depth: " + std::to_string(depth) + ",\n";
+  string += " vertices: " + std::to_string(graph.vertexes().size()) + ", [";
+  for (int j = 0; j <= depth; j++) {
+    string += std::to_string(graph.vertexIdsAtLayer(j).size()) + ", ";
+  }
+  string.pop_back();
+  string.pop_back();
+  string += "],\n";
+  string += " edges: " + std::to_string(graph.edges().size()) + ", {";
+  for (const auto& color : uni_course_cpp::Edge::ALL_COLORS) {
+    string += uni_course_cpp::GraphPrinter::colorToString(color) + ": ";
+    string += std::to_string(graph.colorEdges(color).size()) + ", ";
+  }
+  string.pop_back();
+  string.pop_back();
+  string += "},\n}\n";
+  return string;
+}
+
+void prepareTempDirectory() {
+  std::filesystem::create_directory(
+      uni_course_cpp::config::TEMP_DIRECTORY_PATH);
+}
+}  // namespace
+
 int main() {
-  const auto graph = generateGraph();
-  const auto graphJson = printing::json::printGraph(graph);
-  writeToFile(graphJson, "graph.json");
+  const uni_course_cpp::Depth depth = handle_depth_input();
+  const int new_vertexes_num = handle_new_vertexes_num_input();
+  const int graphs_count = handleNewGraphsCountInput();
+  prepareTempDirectory();
+
+  const auto params =
+      uni_course_cpp::GraphGenerator::Params(depth, new_vertexes_num);
+  const auto generator = uni_course_cpp::GraphGenerator(params);
+
+  auto& logger = uni_course_cpp::Logger::getLogger();
+
+  for (int i = 0; i < graphs_count; i++) {
+    logger.log(genStartedString(i));
+    const auto graph = generator.generate();
+    logger.log(genFinishedString(i, graph));
+
+    const auto graph_printer = uni_course_cpp::GraphPrinter(graph);
+    write_to_file(graph_printer.print(),
+                  uni_course_cpp::config::TEMP_DIRECTORY_PATH + "graph_" +
+                      std::to_string(i) + ".json");
+  }
+
   return 0;
 }
