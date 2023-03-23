@@ -1,20 +1,26 @@
-#include "graph_generation_controller.hpp"
+#include "graph_traversal_controller.hpp"
+#include <algorithm>
 #include <cassert>
 #include <mutex>
 #include <thread>
+#include "graph.hpp"
+#include "graph_path.hpp"
+#include "graph_traverser.hpp"
+
+namespace {
+
+const int MAX_WORKERS_COUNT = std::thread::hardware_concurrency();
+}  // namespace
 
 namespace uni_course_cpp {
 
-GraphGenerationController::GraphGenerationController(
-    int threads_num,
-    int graphs_num,
-    const GraphGenerator::Params& graph_generator_params)
-    : threads_num_(threads_num),
-      graphs_num_(graphs_num),
-      graph_generator_(graph_generator_params) {
+GraphTraversalController::GraphTraversalController(
+    const std::vector<Graph>& graphs)
+    : graphs_(graphs) {
+  threads_num_ = std::min(MAX_WORKERS_COUNT, static_cast<int>(graphs.size()));
   for (int i = 0; i < threads_num_; i++) {
     workers_.emplace_back([&jobs_ = jobs_, &mutex_jobs_ = mutex_jobs_,
-                           this]() -> std::optional<JobCallback> {
+                           this]() -> std::optional<std::function<void()>> {
       const std::lock_guard lock(mutex_jobs_);
       if (!jobs_.empty()) {
         const auto job = jobs_.front();
@@ -26,7 +32,7 @@ GraphGenerationController::GraphGenerationController(
   }
 }
 
-void GraphGenerationController::Worker::start() {
+void GraphTraversalController::Worker::start() {
   assert(state_ == State::Idle && "Worker is already in process");
 
   state_ = State::Working;
@@ -46,42 +52,44 @@ void GraphGenerationController::Worker::start() {
       });
 }
 
-void GraphGenerationController::Worker::stop() {
+void GraphTraversalController::Worker::stop() {
   assert(state_ == State::Working && "Worker has already stopped");
   state_ = State::ShouldTerminate;
   thread_.join();
 }
 
-GraphGenerationController::Worker::~Worker() {
+GraphTraversalController::Worker::~Worker() {
   if (state_ == State::Working) {
     stop();
   }
 }
 
-void GraphGenerationController::generate(
-    const GenStartedCallback& gen_started_callback,
-    const GenFinishedCallback& gen_finished_callback) {
-  for (int i = 0; i < graphs_num_; i++) {
-    jobs_.emplace_back([&gen_started_callback, &gen_finished_callback,
-                        &graph_generator_ = graph_generator_,
-                        &graphs_generated_ = graphs_generated_, i, this]() {
+void GraphTraversalController::traverse(
+    const TraversalStartedCallback& traversalStartedCallback,
+    const TraversalFinishedCallback& traversalFinishedCallback) {
+  for (int i = 0; i < graphs_.size(); i++) {
+    jobs_.emplace_back([&traversalStartedCallback, &traversalFinishedCallback,
+                        &graphs_traversed_ = graphs_traversed_,
+                        &mutex_start_ = mutex_start_,
+                        &mutex_finish_ = mutex_finish_, i, this]() {
       {
         const std::lock_guard lock(mutex_start_);
-        gen_started_callback(i);
+        traversalStartedCallback(i);
       }
-      auto graph = graph_generator_.generate();
+      GraphTraverser graph_traverser(graphs_[i]);
+      const auto paths = graph_traverser.findAllPaths();
       {
         const std::lock_guard lock(mutex_finish_);
-        gen_finished_callback(i, std::move(graph));
+        traversalFinishedCallback(i, std::move(paths));
       }
-      graphs_generated_++;
+      graphs_traversed_++;
     });
   }
 
   for (auto& worker : workers_) {
     worker.start();
   }
-  while (graphs_generated_ != graphs_num_) {
+  while (graphs_traversed_ != graphs_.size()) {
   }
   for (auto& worker : workers_) {
     worker.stop();

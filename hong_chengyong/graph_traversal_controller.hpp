@@ -5,18 +5,21 @@
 #include <list>
 #include <mutex>
 #include <thread>
+#include <vector>
 #include "graph_generator.hpp"
+#include "graph_path.hpp"
 
 namespace uni_course_cpp {
-class GraphGenerationController {
+class GraphTraversalController {
  public:
-  using JobCallback = std::function<void()>;
-  using GenStartedCallback = std::function<void(int index)>;
-  using GenFinishedCallback = std::function<void(int index, Graph graph)>;
+  using TraversalStartedCallback = std::function<void(int index)>;
+  using TraversalFinishedCallback =
+      std::function<void(int index, std::vector<GraphPath> paths)>;
 
   class Worker {
    public:
-    using GetJobCallback = std::function<std::optional<JobCallback>()>;
+    using GetJobCallback =
+        std::function<std::optional<std::function<void()>>()>;
 
     enum class State { Idle, Working, ShouldTerminate };
 
@@ -34,21 +37,17 @@ class GraphGenerationController {
     std::atomic<State> state_ = State::Idle;
   };
 
-  GraphGenerationController(
-      int threads_num,
-      int graphs_num,
-      const GraphGenerator::Params& graph_generator_params);
+  void traverse(const TraversalStartedCallback& traversalStartedCallback,
+                const TraversalFinishedCallback& traversalFinishedCallback);
 
-  void generate(const GenStartedCallback& gen_started_callback,
-                const GenFinishedCallback& gen_finished_callback);
+  GraphTraversalController(const std::vector<Graph>& graphs);
 
  private:
   std::list<Worker> workers_;
-  std::list<JobCallback> jobs_;
-  std::atomic<int> graphs_generated_ = 0;
-  GraphGenerator graph_generator_;
+  std::list<std::function<void()>> jobs_;
+  std::atomic<int> graphs_traversed_;
+  const std::vector<Graph>& graphs_;
   int threads_num_;
-  int graphs_num_;
   std::mutex mutex_jobs_;
   std::mutex mutex_start_;
   std::mutex mutex_finish_;

@@ -14,7 +14,7 @@ constexpr float GREEN_PROBABILITY = 0.1, RED_PROBABILITY = 0.33;
 float getGreyProbability(float step, int depth) {
   return 1.0 - step * depth;
 }
-float P_Yellow(const uni_course_cpp::Graph& graph,
+float getYellowProbability(const uni_course_cpp::Graph& graph,
                            const uni_course_cpp::VertexId& vertex_id) {
   return 1.0 * graph.vertexDepth(vertex_id) / (graph.depth() - 1);
 }
@@ -99,7 +99,7 @@ Graph GraphGenerator::generateMainBody() const {
   auto jobs = std::list<JobCallback>();
   std::mutex mutex;
   std::atomic<int> created_branches = 0;
-  bool should_terminate = false;
+  std::atomic<bool> should_terminate = false;
   for (int i = 0; i < params_.new_vertexes_num; i++) {
     jobs.push_back([&graph, &mutex, &root_id, &created_branches, this]() {
       generateGrayBranch(graph, 0, root_id, mutex);
