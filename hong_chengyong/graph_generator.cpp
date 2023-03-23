@@ -99,7 +99,7 @@ Graph GraphGenerator::generateMainBody() const {
   auto jobs = std::list<JobCallback>();
   std::mutex mutex;
   std::atomic<int> created_branches = 0;
-  std::atomic<bool> should_terminate = false;
+  bool should_terminate = false;
   for (int i = 0; i < params_.new_vertexes_num; i++) {
     jobs.push_back([&graph, &mutex, &root_id, &created_branches, this]() {
       generateGrayBranch(graph, 0, root_id, mutex);

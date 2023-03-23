@@ -3,7 +3,6 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <mutex>
 #include <sstream>
 #include <string>
 #include "config.hpp"
@@ -21,7 +20,6 @@ std::string getCurrentDateTime() {
 
 namespace uni_course_cpp {
 void Logger::log(const std::string& string) {
-  const std::lock_guard lock(logger_mutex_);
   std::string log_info = getCurrentDateTime();
   log_info += ": " + string;
   std::cout << log_info;
