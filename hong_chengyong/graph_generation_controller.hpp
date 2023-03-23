@@ -50,7 +50,5 @@ class GraphGenerationController {
   int threads_num_;
   int graphs_num_;
   std::mutex mutex_jobs_;
-  std::mutex mutex_start_;
-  std::mutex mutex_finish_;
 };
 }  // namespace uni_course_cpp
