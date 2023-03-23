@@ -4,6 +4,7 @@
 #include <functional>
 #include <list>
 #include <mutex>
+#include <optional>
 #include <thread>
 #include "graph_generator.hpp"
 

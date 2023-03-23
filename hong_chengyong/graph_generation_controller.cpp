@@ -1,6 +1,7 @@
 #include "graph_generation_controller.hpp"
 #include <cassert>
 #include <mutex>
+#include <optional>
 #include <thread>
 
 namespace uni_course_cpp {
