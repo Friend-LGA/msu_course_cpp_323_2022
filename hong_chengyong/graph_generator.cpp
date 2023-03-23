@@ -4,7 +4,6 @@
 #include <iostream>
 #include <list>
 #include <mutex>
-#include <optional>
 #include <random>
 #include <thread>
 #include <vector>
@@ -12,7 +11,7 @@
 
 namespace {
 constexpr float GREEN_PROBABILITY = 0.1, RED_PROBABILITY = 0.33;
-float getGreyProbability(float step, uni_course_cpp::Depth depth) {
+float getGreyProbability(float step, int depth) {
   return 1.0 - step * depth;
 }
 float getYellowProbability(const uni_course_cpp::Graph& graph,
@@ -46,7 +45,11 @@ void generateYellowEdges(uni_course_cpp::Graph& graph, std::mutex& mutex) {
         randomValue(getYellowProbability(graph, vertex.id))) {
       std::vector<uni_course_cpp::VertexId> next_layer;
       for (const auto& vertex_id : graph.vertexIdsAtLayer(vertex_depth + 1)) {
-        if (!graph.areConnected(vertex.id, vertex_id)) {
+        const bool are_connected = [&graph, &vertex_id, &vertex, &mutex]() {
+          const std::lock_guard lock(mutex);
+          return graph.areConnected(vertex.id, vertex_id);
+        }();
+        if (!are_connected) {
           next_layer.push_back(vertex_id);
         }
       }
@@ -93,17 +96,17 @@ Graph GraphGenerator::generateMainBody() const {
   Graph graph;
   VertexId root_id = graph.addVertex();
   using JobCallback = std::function<void()>;
-  auto jobs = std::list<JobCallback>();  //
+  auto jobs = std::list<JobCallback>();
   std::mutex mutex;
   std::atomic<int> created_branches = 0;
-  bool should_terminate = false;
+  std::atomic<bool> should_terminate = false;
   for (int i = 0; i < params_.new_vertexes_num; i++) {
     jobs.push_back([&graph, &mutex, &root_id, &created_branches, this]() {
       generateGrayBranch(graph, 0, root_id, mutex);
       created_branches++;
     });
   }
-  auto worker = [&should_terminate, &mutex, &jobs]() {
+  const auto worker = [&should_terminate, &mutex, &jobs]() {
     while (true) {
       if (should_terminate) {
         return;
@@ -125,8 +128,7 @@ Graph GraphGenerator::generateMainBody() const {
     }
   };
 
-  const int MAX_THREADS_COUNT =
-      std::thread::hardware_concurrency();  // 获取硬件最大支持线程
+  const int MAX_THREADS_COUNT = std::thread::hardware_concurrency();
   const auto threads_count =
       std::min(MAX_THREADS_COUNT, params_.new_vertexes_num);
   auto threads = std::vector<std::thread>();
@@ -154,11 +156,11 @@ Graph GraphGenerator::generate() const {
   Graph graph = generateMainBody();
   std::mutex mutex;
   std::thread green_thread(
-      [&graph, &mutex, this]() { generateGreenEdges(graph, mutex); });
+      [&graph, &mutex]() { generateGreenEdges(graph, mutex); });
   std::thread yellow_thread(
-      [&graph, &mutex, this]() { generateYellowEdges(graph, mutex); });
+      [&graph, &mutex]() { generateYellowEdges(graph, mutex); });
   std::thread red_thread(
-      [&graph, &mutex, this]() { generateRedEdges(graph, mutex); });
+      [&graph, &mutex]() { generateRedEdges(graph, mutex); });
   green_thread.join();
   yellow_thread.join();
   red_thread.join();

@@ -10,7 +10,7 @@ class GraphGenerator {
     explicit Params(int _depth = 0, int _new_vertexes_num = 0)
         : depth(_depth), new_vertexes_num(_new_vertexes_num) {}
 
-    const Depth depth;
+    const int depth;
     const int new_vertexes_num;
   };
 
