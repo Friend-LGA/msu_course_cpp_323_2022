@@ -1,9 +1,10 @@
 #pragma once
+
 #include <string>
-#include "graph.hpp"
+#include "interfaces/i_graph.hpp"
 
 namespace uni_course_cpp {
 namespace printing {
-std::string print_graph(const Graph& graph);
+std::string print_graph(const IGraph& graph);
 }
 }  // namespace uni_course_cpp
