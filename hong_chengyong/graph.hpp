@@ -47,8 +47,8 @@ class Graph {
 
   bool isConnected(const VertexId& from_vertex_id,
                    const VertexId& to_vertex_id) const {
-    assert(hasVertex(from_vertex_id) && "from vertex index is out of range");
-    assert(hasVertex(to_vertex_id) && "to vertex index is out of range");
+    assert(hasVertex(from_vertex_id) && "from_vertex index is out of range");
+    assert(hasVertex(to_vertex_id) && "to_vertex index is out of range");
     if (from_vertex_id == to_vertex_id) {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
         const auto& edge = edges_[edge_id];
@@ -70,11 +70,11 @@ class Graph {
   }
 
   VertexId addVertex() {
-    const int kstart = 0;
+    const int kDefaultDepth = 0;
     const auto& new_vertex = vertexes_.emplace_back(getNewVertexId());
     connection_list_.insert({new_vertex.id, std::vector<EdgeId>()});
-    layers_list_[kstart].push_back(new_vertex.id);
-    vertexes_depths_[new_vertex.id] = kstart;
+    layers_list_[kDefaultDepth].push_back(new_vertex.id);
+    vertexes_depths_[new_vertex.id] = kDefaultDepth;
     return new_vertex.id;
   }
 
@@ -141,7 +141,7 @@ class Graph {
     assert(hasVertex(vertex_id) && "Vertex id is out of range");
     return vertexes_depths_.at(vertex_id);
   }
-  Depth depth() const { return depth_; }
+  Depth depth() const { return layers_list_.size(); }
 
  private:
   std::vector<Vertex> vertexes_;
@@ -150,7 +150,7 @@ class Graph {
   VertexId new_vertex_id_ = 0;
   EdgeId new_edge_id_ = 0;
   std::unordered_map<VertexId, std::vector<EdgeId>> connection_list_;
-  std::unordered_map<VertexId, std::vector<VertexId>> layers_list_;
+  std::unordered_map<Depth, std::vector<VertexId>> layers_list_;
   std::unordered_map<VertexId, Depth> vertexes_depths_;
   VertexId getNewVertexId() { return new_vertex_id_++; }
   EdgeId getNewEdgeId() { return new_edge_id_++; }

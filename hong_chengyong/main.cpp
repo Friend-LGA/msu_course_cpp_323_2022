@@ -4,7 +4,42 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-
+namespace {
+int handleDepthInput() {
+  int depth;
+  std::cout << "Enter depth:" << std::endl;
+  std::cin >> depth;
+  while (depth < 0) {
+    std::cout << "Depth must be not negative. Enter depth again:" << std::endl;
+    std::cin >> depth;
+  }
+  return depth;
+}
+int handleNewertexesCountInput() {
+  int new_vertexes_num;
+  std::cout << "Enter number of new vertexes : " << std::endl;
+  std::cin >> new_vertexes_num;
+  while (new_vertexes_num < 0) {
+    std::cout << "Number of new vertexes must be not negative. Enternumber of "
+                 "new vertexes again:"
+              << std::endl;
+    std::cin >> new_vertexes_num;
+  }
+  return new_vertexes_num;
+}
+int handleNewGraphsCountInput() {
+  int new_graphs_num;
+  std::cout << "Enter number of new graphs:" << std::endl;
+  std::cin >> new_graphs_num;
+  while (new_graphs_num < 0) {
+    std::cout << "Number of new graphsmust be not negative. Enter number of  "
+                 "new hraphs again:"
+              << std::endl;
+    std::cin >> new_graphs_num;
+  }
+  return new_graphs_num;
+}
+}  // namespace
 class GraphPrinter {
  public:
   explicit GraphPrinter(const uni_course_cpp::Graph& graph) : graph_(graph) {}
@@ -78,23 +113,10 @@ void write_to_file(const std::string& string, const std::string& file_name) {
 }
 
 int main() {
-  uni_course_cpp::Graph::Depth depth, new_vertexes_num;
-  std::cout << "Enter depth:" << std::endl;
-  std::cin >> depth;
-  while (depth < 0) {
-    std::cout << "Depth must be not negative. Enter depth again:" << std::endl;
-    std::cin >> depth;
-  }
-  std::cout << "Enter number of new vertices:" << std::endl;
-  std::cin >> new_vertexes_num;
-  while (depth < 0) {
-    std::cout << "Number of new vertices must be not negative. Enter number of "
-                 "new vertexes again:"
-              << std::endl;
-    std::cin >> new_vertexes_num;
-  }
+  const int depth = handleDepthInput();
+  const int new_vertexes_count = handleNewertexesCountInput();
   const uni_course_cpp::GraphGenerator::Params params =
-      uni_course_cpp::GraphGenerator::Params(depth, new_vertexes_num);
+      uni_course_cpp::GraphGenerator::Params(depth, new_vertexes_count);
   const uni_course_cpp::Graph graph =
       uni_course_cpp::GraphGenerator(params).generate();
   const auto graph_printer = GraphPrinter(graph);
