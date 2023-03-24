@@ -12,7 +12,7 @@ class GraphGenerator {
     explicit Params(int _depth = 0, int _new_vertexes_num = 0)
         : depth(_depth), new_vertexes_num(_new_vertexes_num) {}
 
-    const Depth depth;
+    const Graph::Depth depth;
     const int new_vertexes_num;
   };
 
@@ -46,14 +46,14 @@ class GraphGenerator {
     return graph;
   }
   void generate_green_edges(Graph& graph,
-                            const Depth& vertex_depth,
+                            const Graph::Depth& vertex_depth,
                             const Vertex& vertex) const {
     if (randomValue(kGreenProbabilty)) {
       graph.addEdge(vertex.id, vertex.id);
     }
   }
   void generate_blue_edges(Graph& graph,
-                           const Depth& vertex_depth,
+                           const Graph::Depth& vertex_depth,
                            const Vertex& vertex) const {
     const auto& next_vertex_id = vertex.id + 1;
     if (randomValue(kBlueProbabilty) && graph.hasVertex(next_vertex_id) &&
@@ -62,7 +62,7 @@ class GraphGenerator {
     }
   }
   void generate_yellow_edges(Graph& graph,
-                             const Depth& vertex_depth,
+                             const Graph::Depth& vertex_depth,
                              const Vertex& vertex) const {
     if (vertex_depth < graph.depth() &&
         randomValue(getYellowProbability(graph, vertex.id))) {
@@ -79,7 +79,7 @@ class GraphGenerator {
     }
   }
   void generate_red_edges(Graph& graph,
-                          const Depth& vertex_depth,
+                          const Graph::Depth& vertex_depth,
                           const Vertex& vertex) const {
     if (randomValue(kRedProbability) &&
         vertex_depth < (graph.depth() - 1))  // depth(N-1){

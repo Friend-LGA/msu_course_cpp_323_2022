@@ -78,7 +78,7 @@ void write_to_file(const std::string& string, const std::string& file_name) {
 }
 
 int main() {
-  uni_course_cpp::Depth depth, new_vertexes_num;
+  uni_course_cpp::Graph::Depth depth, new_vertexes_num;
   std::cout << "Enter depth:" << std::endl;
   std::cin >> depth;
   while (depth < 0) {

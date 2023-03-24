@@ -9,7 +9,6 @@
 namespace uni_course_cpp {
 using VertexId = int;
 using EdgeId = int;
-using Depth = int;
 
 struct Vertex {
   const VertexId id;
@@ -24,10 +23,10 @@ struct Edge {
   const VertexId from_vertex_id;
   const VertexId to_vertex_id;
   const Color color;
-  explicit Edge(const EdgeId& _id,
-                const VertexId& _from_vertex_id,
-                const VertexId& _to_vertex_id,
-                const Color& _color)
+  Edge(const EdgeId& _id,
+       const VertexId& _from_vertex_id,
+       const VertexId& _to_vertex_id,
+       const Color& _color)
       : id(_id),
         from_vertex_id(_from_vertex_id),
         to_vertex_id(_to_vertex_id),
@@ -36,6 +35,7 @@ struct Edge {
 
 class Graph {
  public:
+  using Depth = int;
   bool hasVertex(const VertexId& vertex_id) const {
     for (const auto& vertex : vertexes_) {
       if (vertex.id == vertex_id) {
@@ -56,8 +56,8 @@ class Graph {
 
   bool isConnected(const VertexId& from_vertex_id,
                    const VertexId& to_vertex_id) const {
-    assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
-    assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
+    assert(hasVertex(from_vertex_id) && "from_vertex_id index is out of range");
+    assert(hasVertex(to_vertex_id) && "to_vertex_id index is out of range");
     if (from_vertex_id == to_vertex_id) {
       for (const auto& edge_id : connection_list_.at(from_vertex_id)) {
         const auto& edge = getEdge(edge_id);
@@ -151,7 +151,7 @@ class Graph {
   }
   const std::vector<Vertex>& vertexes() const { return vertexes_; }
   const std::vector<Edge>& edges() const { return edges_; }
-  const std::vector<VertexId>& vertexIdsAtLayer(Depth depth) const {
+  const std::vector<VertexId>& vertexIdsAtLayer(Graph::Depth depth) const {
     assert(depth <= depth_ && "Graph is not that deep");
     return layers_list_.at(depth);
   }
@@ -164,7 +164,7 @@ class Graph {
  private:
   std::vector<Vertex> vertexes_;
   std::vector<Edge> edges_;
-  Depth depth_ = 0;
+  Graph::Depth depth_ = 0;
   int vertex_new_id_ = 0, edge_new_id_ = 0;
   std::unordered_map<VertexId, std::vector<EdgeId>> connection_list_;
   std::unordered_map<int, std::vector<VertexId>> layers_list_;
