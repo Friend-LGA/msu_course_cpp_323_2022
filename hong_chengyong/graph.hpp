@@ -18,16 +18,16 @@ struct Vertex {
 };
 
 struct Edge {
-  enum class Colors { Grey, Green, Blue, Yellow, Red };
+  enum class Color { Grey, Green, Blue, Yellow, Red };
 
   const EdgeId id;
   const VertexId from_vertex_id;
   const VertexId to_vertex_id;
-  const Colors color;
+  const Color color;
   explicit Edge(const EdgeId& _id,
                 const VertexId& _from_vertex_id,
                 const VertexId& _to_vertex_id,
-                const Colors& _color)
+                const Color& _color)
       : id(_id),
         from_vertex_id(_from_vertex_id),
         to_vertex_id(_to_vertex_id),
@@ -54,8 +54,8 @@ class Graph {
     return false;
   }
 
-  bool areConnected(const VertexId& from_vertex_id,
-                    const VertexId& to_vertex_id) const {
+  bool isConnected(const VertexId& from_vertex_id,
+                   const VertexId& to_vertex_id) const {
     assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
     assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
     if (from_vertex_id == to_vertex_id) {
@@ -86,20 +86,20 @@ class Graph {
     return new_vertex.id;
   }
 
-  Edge::Colors calculateEdgeColor(const VertexId& from_vertex_id,
-                                  const VertexId& to_vertex_id) const {
+  Edge::Color calculateEdgeColor(const VertexId& from_vertex_id,
+                                 const VertexId& to_vertex_id) const {
     if (connection_list_.at(to_vertex_id).size() == 0 ||
         connection_list_.at(from_vertex_id).size() == 0) {
-      return Edge::Colors::Grey;
+      return Edge::Color::Grey;
     } else if (from_vertex_id == to_vertex_id) {
-      return Edge::Colors::Green;
+      return Edge::Color::Green;
     } else if (vertexDepth(to_vertex_id) == vertexDepth(from_vertex_id)) {
-      return Edge::Colors::Blue;
+      return Edge::Color::Blue;
     } else if (std::abs(vertexDepth(to_vertex_id) -
                         vertexDepth(from_vertex_id)) == 1) {
-      return Edge::Colors::Yellow;
+      return Edge::Color::Yellow;
     } else {
-      return Edge::Colors::Red;
+      return Edge::Color::Red;
     }
   }
 
@@ -121,10 +121,10 @@ class Graph {
   void addEdge(const VertexId& from_vertex_id, const VertexId& to_vertex_id) {
     assert(hasVertex(from_vertex_id) && "Vertex1 index is out of range");
     assert(hasVertex(to_vertex_id) && "Vertex2 index is out of range");
-    assert(!areConnected(from_vertex_id, to_vertex_id) &&
+    assert(!isConnected(from_vertex_id, to_vertex_id) &&
            "These vertexes are already connected");
     auto color = calculateEdgeColor(from_vertex_id, to_vertex_id);
-    if (color == Edge::Colors::Grey) {
+    if (color == Edge::Color::Grey) {
       greyEdgeInitialization(from_vertex_id, to_vertex_id);
     }
     const auto& new_edge = edges_.emplace_back(getNewEdgeId(), from_vertex_id,

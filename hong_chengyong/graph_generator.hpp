@@ -70,7 +70,7 @@ class GraphGenerator {
       for (const auto& vertex_id : graph.vertexIdsAtLayer(
                vertex_depth + 1))  // find vertex from next layer
       {
-        if (!graph.areConnected(vertex.id, vertex_id)) {
+        if (!graph.isConnected(vertex.id, vertex_id)) {
           next_layer.push_back(vertex_id);
         }
       }

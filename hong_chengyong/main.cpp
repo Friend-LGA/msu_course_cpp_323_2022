@@ -57,15 +57,15 @@ class GraphPrinter {
   const uni_course_cpp::Graph& graph_;
   std::string colorToString(const uni_course_cpp::Edge& edge) const {
     switch (edge.color) {
-      case uni_course_cpp::Edge::Colors::Grey:
+      case uni_course_cpp::Edge::Color::Grey:
         return "\"gray\"";
-      case uni_course_cpp::Edge::Colors::Green:
+      case uni_course_cpp::Edge::Color::Green:
         return "\"green\"";
-      case uni_course_cpp::Edge::Colors::Blue:
+      case uni_course_cpp::Edge::Color::Blue:
         return "\"blue\"";
-      case uni_course_cpp::Edge::Colors::Yellow:
+      case uni_course_cpp::Edge::Color::Yellow:
         return "\"yellow\"";
-      case uni_course_cpp::Edge::Colors::Red:
+      case uni_course_cpp::Edge::Color::Red:
         return "\"red\"";
     }
   }
