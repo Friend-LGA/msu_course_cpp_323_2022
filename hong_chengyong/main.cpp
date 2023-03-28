@@ -118,7 +118,7 @@ int main() {
   const uni_course_cpp::GraphGenerator::Params params =
       uni_course_cpp::GraphGenerator::Params(depth, new_vertexes_count);
   const uni_course_cpp::Graph graph =
-      uni_course_cpp::GraphGenerator(params).generate();
+      uni_course_cpp::GraphGenerator(std::move(params)).generate();
   const auto graph_printer = GraphPrinter(graph);
   const auto graph_json = graph_printer.print();
   std::cout << graph_json << std::endl;
