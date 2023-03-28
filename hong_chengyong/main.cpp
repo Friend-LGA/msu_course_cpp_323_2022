@@ -96,8 +96,6 @@ class GraphPrinter {
         return "\"gray\"";
       case uni_course_cpp::Edge::Color::Green:
         return "\"green\"";
-      case uni_course_cpp::Edge::Color::Blue:
-        return "\"blue\"";
       case uni_course_cpp::Edge::Color::Yellow:
         return "\"yellow\"";
       case uni_course_cpp::Edge::Color::Red:

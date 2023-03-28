@@ -17,7 +17,7 @@ struct Vertex {
 };
 
 struct Edge {
-  enum class Color { Gray, Green, Blue, Yellow, Red };
+  enum class Color { Gray, Green, Yellow, Red };
 
   const EdgeId id;
   const VertexId from_vertex_id;
@@ -85,8 +85,6 @@ class Graph {
       return Edge::Color::Gray;
     } else if (from_vertex_id == to_vertex_id) {
       return Edge::Color::Green;
-    } else if (vertexDepth(to_vertex_id) == vertexDepth(from_vertex_id)) {
-      return Edge::Color::Blue;
     } else if (std::abs(vertexDepth(to_vertex_id) -
                         vertexDepth(from_vertex_id)) == 1) {
       return Edge::Color::Yellow;

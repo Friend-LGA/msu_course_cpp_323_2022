@@ -3,8 +3,7 @@
 #include "graph.hpp"
 
 namespace uni_course_cpp {
-constexpr float kGreenProbabilty = 0.1, kBlueProbabilty = 0.25,
-                kRedProbability = 0.33;
+constexpr float kGreenProbabilty = 0.1, kRedProbability = 0.33;
 
 class GraphGenerator {
  public:
@@ -52,15 +51,7 @@ class GraphGenerator {
       graph.addEdge(vertex.id, vertex.id);
     }
   }
-  void generate_blue_edges(Graph& graph,
-                           const Graph::Depth& vertex_depth,
-                           const Vertex& vertex) const {
-    const auto& next_vertex_id = vertex.id + 1;
-    if (randomValue(kBlueProbabilty) && graph.hasVertex(next_vertex_id) &&
-        graph.vertexDepth(next_vertex_id) == vertex_depth) {
-      graph.addEdge(vertex.id, next_vertex_id);
-    }
-  }
+
   void generate_yellow_edges(Graph& graph,
                              const Graph::Depth& vertex_depth,
                              const Vertex& vertex) const {
@@ -92,7 +83,6 @@ class GraphGenerator {
     for (const auto& vertex : graph.vertexes()) {
       const int vertex_depth = graph.vertexDepth(vertex.id);
       generate_green_edges(graph, vertex_depth, vertex);
-      generate_blue_edges(graph, vertex_depth, vertex);
       generate_yellow_edges(graph, vertex_depth, vertex);
       generate_red_edges(graph, vertex_depth, vertex);
     }
