@@ -2,9 +2,12 @@
 
 #include <algorithm>
 #include <cassert>
+#include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace uni_course_cpp {
 
 class Graph {
  public:
@@ -16,36 +19,13 @@ class Graph {
   static constexpr Graph::Depth kRedEdgeDepthJump = 2;
   static constexpr Graph::Depth kYellowEdgeDepthJump = 1;
 
-  VertexId add_vertex() {
-    const VertexId new_vertex_id = get_new_vertex_id();
-    vertices_.emplace(new_vertex_id, new_vertex_id);
-    connections_[new_vertex_id] = {};
-    set_vertex_depth(new_vertex_id, kGraphBaseDepth);
-    return new_vertex_id;
-  }
+  VertexId add_vertex();
 
   bool has_vertex(VertexId vertex_id) const {
     return vertices_.find(vertex_id) != vertices_.end();
   }
 
-  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id) {
-    assert(has_vertex(from_vertex_id));
-    assert(has_vertex(to_vertex_id));
-
-    const auto edge_id = get_new_edge_id();
-    const auto edge_color = define_edge_color(from_vertex_id, to_vertex_id);
-    edges_.emplace(edge_id,
-                   Edge(edge_id, from_vertex_id, to_vertex_id, edge_color));
-
-    connections_[from_vertex_id].push_back(edge_id);
-    if (to_vertex_id != from_vertex_id) {
-      connections_[to_vertex_id].push_back(edge_id);
-    }
-
-    if (edge_color == Edge::Color::Grey) {
-      set_vertex_depth(to_vertex_id, depth_of(from_vertex_id) + 1);
-    }
-  }
+  void add_edge(VertexId from_vertex_id, VertexId to_vertex_id);
 
   const auto& vertices() const { return vertices_; }
 
@@ -66,21 +46,9 @@ class Graph {
     return depth_map_.at(depth);
   }
 
-  std::vector<VertexId> connected_vertices(VertexId vertex_id) const {
-    std::vector<VertexId> result;
-    result.reserve(connections_.at(vertex_id).size());
-    for (EdgeId edge_id : connections_.at(vertex_id)) {
-      result.push_back(other_end_of(edge_id, vertex_id));
-    }
-    return result;
-  }
+  std::vector<VertexId> connected_vertices(VertexId vertex_id) const;
 
-  bool is_connected(VertexId from_vertex_id, VertexId to_vertex_id) const {
-    const std::vector<VertexId>& from_vertex_ids =
-        connected_vertices(from_vertex_id);
-    return std::find(from_vertex_ids.begin(), from_vertex_ids.end(),
-                     to_vertex_id) != from_vertex_ids.end();
-  }
+  bool is_connected(VertexId from_vertex_id, VertexId to_vertex_id) const;
 
   struct Vertex {
    public:
@@ -116,9 +84,12 @@ class Graph {
     Color color_;
   };
 
+  const std::vector<EdgeId> get_colored_edges_ids(Graph::Edge::Color) const;
+
  private:
   std::unordered_map<VertexId, Vertex> vertices_;
   std::unordered_map<EdgeId, Edge> edges_;
+  std::unordered_map<Edge::Color, std::vector<EdgeId>> colored_edge_ids_;
   std::unordered_map<VertexId, std::vector<EdgeId>> connections_;
   std::unordered_map<VertexId, Depth> vertex_depths_;
   std::vector<std::unordered_set<VertexId>> depth_map_;
@@ -130,46 +101,10 @@ class Graph {
   EdgeId get_new_edge_id() { return last_edge_id_++; }
 
   Edge::Color define_edge_color(VertexId from_vertex_id,
-                                VertexId to_vertex_id) const {
-    if (from_vertex_id == to_vertex_id) {
-      return Edge::Color::Green;
-    }
-    if (depth_of(to_vertex_id) == kGraphBaseDepth) {
-      return Edge::Color::Grey;
-    }
-    const Depth depth_jump = depth_of(to_vertex_id) - depth_of(from_vertex_id);
-    if (depth_jump == kYellowEdgeDepthJump &&
-        !is_connected(from_vertex_id, to_vertex_id)) {
-      return Edge::Color::Yellow;
-    }
-    if (depth_jump == kRedEdgeDepthJump) {
-      return Edge::Color::Red;
-    }
-    throw std::runtime_error("Failed to determine color");
-  }
+                                VertexId to_vertex_id) const;
 
-  void set_vertex_depth(VertexId vertex_id, Depth depth) {
-    const auto depth_iterator = vertex_depths_.find(vertex_id);
-    if (depth_iterator != vertex_depths_.end()) {
-      Depth old_depth = depth_iterator->second;
-      assert(depth != old_depth);
-      depth_map_[old_depth].erase(vertex_id);
-    }
+  void set_vertex_depth(VertexId vertex_id, Depth depth);
 
-    vertex_depths_[vertex_id] = depth;
-    if (depth_map_.size() <= depth) {
-      depth_map_.resize(depth + 1);
-    }
-    depth_map_[depth].insert(vertex_id);
-  }
-
-  VertexId other_end_of(EdgeId edge_id, VertexId vertex_id) const {
-    const Edge& edge = edges().at(edge_id);
-    assert(edge.from_vertex_id() == vertex_id ||
-           edge.to_vertex_id() == vertex_id);
-    if (edge.from_vertex_id() == vertex_id) {
-      return edge.to_vertex_id();
-    }
-    return edge.from_vertex_id();
-  }
+  VertexId other_end_of(EdgeId edge_id, VertexId vertex_id) const;
 };
+}  // namespace uni_course_cpp
